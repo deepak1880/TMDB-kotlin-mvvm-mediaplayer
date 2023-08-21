@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import coil.load
 import com.example.tmdbapp.R
+import com.example.tmdbapp.helper.CalculationHelper
 import com.example.tmdbapp.helper.RetrofitHelper
 import com.example.tmdbapp.model.people.Person
 import kotlinx.coroutines.launch
@@ -22,9 +23,12 @@ class PersonFragment : Fragment() {
     private val personService = RetrofitHelper.personService
 
     // views
-    lateinit var profilePic : ImageView
-    lateinit var personName : TextView
-
+    lateinit var profilePic: ImageView
+    lateinit var personName: TextView
+    lateinit var personRole: TextView
+    lateinit var personDob: TextView
+    lateinit var personPlaceOfBirth: TextView
+    lateinit var personBiography: TextView
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,6 +47,10 @@ class PersonFragment : Fragment() {
 
         profilePic = view.findViewById(R.id.person_image_profilePic)
         personName = view.findViewById(R.id.person_tv_personName)
+        personRole = view.findViewById(R.id.person_tv_personRole)
+        personBiography = view.findViewById(R.id.person_tv_biography)
+        personDob = view.findViewById(R.id.person_tv_dateOfBirth)
+        personPlaceOfBirth = view.findViewById(R.id.person_tv_placeOfBirth)
 
         return view
     }
@@ -57,8 +65,14 @@ class PersonFragment : Fragment() {
 
     private fun updateUiWithData(person: Person?) {
         person?.let {
-        profilePic.load("${RetrofitHelper.IMAGE_BASE_URL}${person.profilePath}")
-        personName.text = person.name}
+            profilePic.load("${RetrofitHelper.IMAGE_BASE_URL}${person.profilePath}")
+            personName.text = person.name
+            personRole.text = person.knownForDepartment
+            personBiography.text = person.biography
+            personPlaceOfBirth.text = person.placeOfBirth
+            val age = CalculationHelper.findAge(person.birthday)
+            personDob.text = "${person.birthday} (${age} years old)"
+        }
     }
 
     private suspend fun getPersonDetail(id: Int): Person? {

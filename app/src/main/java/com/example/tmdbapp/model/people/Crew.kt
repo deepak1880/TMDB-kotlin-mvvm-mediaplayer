@@ -1,5 +1,9 @@
 package com.example.tmdbapp.model.people
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class Crew(
     val adult: Boolean,
     val backdrop_path: String,
@@ -24,4 +28,4 @@ data class Crew(
     val vote_average: Double,
     val profile_path: String,
     val vote_count: Int
-)
+) : Parcelable

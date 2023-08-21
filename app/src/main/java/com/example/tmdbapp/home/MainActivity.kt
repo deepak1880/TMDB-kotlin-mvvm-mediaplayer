@@ -10,18 +10,18 @@ import com.example.tmdbapp.extensions.performFragmentTransaction
 
 class MainActivity : AppCompatActivity() {
      var fragment : Fragment? = null
-    val  FRAGMENT_TAG = "fragmentOne";
+    private val  FRAGMENT_TAG = "fragmentOne";
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        if (savedInstanceState == null) {
-            fragment = HomeFragment()
+        fragment = if (savedInstanceState == null) {
+            HomeFragment()
         } else {
-            fragment = supportFragmentManager.findFragmentByTag(FRAGMENT_TAG)
+            supportFragmentManager.findFragmentByTag(FRAGMENT_TAG)
         }
 
         supportFragmentManager.performFragmentTransaction(
-            R.id.home_container, HomeFragment(), FragmentHelper.ADD, true
+            R.id.home_container, HomeFragment(), FragmentHelper.ADD, false
         )
     }
 }

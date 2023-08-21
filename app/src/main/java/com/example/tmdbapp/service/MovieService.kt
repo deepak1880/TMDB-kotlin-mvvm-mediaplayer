@@ -2,7 +2,7 @@ package com.example.tmdbapp.service
 
 import com.example.tmdbapp.model.MovieDetails
 import com.example.tmdbapp.model.Result
-import com.example.tmdbapp.model.people.CombinedCredits
+import com.example.tmdbapp.model.people.PersonMovieCredits
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -27,6 +27,6 @@ interface MovieService {
 
 
     @GET("movie/{movie_id}/credits")
-    suspend fun getMovieCredits(@Path("movie_id") id : Int) : Response<CombinedCredits>
+    suspend fun getMovieCredits(@Path("movie_id") id : Int) : Response<PersonMovieCredits>
 
 }
