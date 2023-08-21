@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">TMDB App</string>
+    <string name="login_title">Login</string>
+    <string name="login_emailHint">Email</string>
+    <string name="login_passwordHint">Password</string>
+    <string name="login_btnSubmit">Submit</string>
+    <string name="login_invalidCredentials">Invalid Credentials.</string>
+    <string name="home_text_nowPlaying">Now Playing</string>
+    <string name="home_text_popular">Popular</string>
+    <string name="home_text_topRated">Top Rated</string>
+    <string name="home_text_upcoming">Upcoming</string>
+    <string name="detail_text_overviewHeader">Overview</string>
+    <string name="detail_tagline">\"%1$s\"</string>
+    <string name="detail_text_castHeader">Cast</string>
+    <string name="detail_image_contentDesc">Image of the cast</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

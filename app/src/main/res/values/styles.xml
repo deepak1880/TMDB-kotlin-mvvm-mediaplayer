@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="HomeTextStyle">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="HomeCardStyle">
+        <item name="cardBackgroundColor">@color/colorPrimary</item>
+    </style>
+
+    <style name="DetailTitleStyle">
+        <item name="android:textSize">30sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="DetailTagLineStyle">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">italic</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="DetailHeaderStyle" parent="DetailTitleStyle">
+        <item name="android:textSize">25sp</item>
+    </style>
+
+</resources>
