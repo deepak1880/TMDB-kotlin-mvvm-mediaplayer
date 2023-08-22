@@ -8,19 +8,30 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.example.tmdbapp.R
+import com.example.tmdbapp.adapter.PersonMovieCreditsAdapter
+import com.example.tmdbapp.extensions.FragmentHelper
+import com.example.tmdbapp.extensions.performFragmentTransaction
 import com.example.tmdbapp.helper.CalculationHelper
-import com.example.tmdbapp.helper.RetrofitHelper
+import com.example.tmdbapp.helper.RetrofitHelper.Companion.IMAGE_BASE_URL
+import com.example.tmdbapp.model.MovieDetails
 import com.example.tmdbapp.model.people.Person
+import com.example.tmdbapp.repository.MovieRepositoryImpl
+import com.example.tmdbapp.repository.PersonRepositoryImpl
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class PersonFragment : Fragment() {
 
     var personId: Int = -1
     private var person: Person? = null
-    private val personService = RetrofitHelper.personService
+    private val movieRepository = MovieRepositoryImpl()
+    private val personRepository = PersonRepositoryImpl()
 
     // views
     lateinit var profilePic: ImageView
@@ -29,6 +40,8 @@ class PersonFragment : Fragment() {
     lateinit var personDob: TextView
     lateinit var personPlaceOfBirth: TextView
     lateinit var personBiography: TextView
+    lateinit var movieCreditsRecyclerView: RecyclerView
+    lateinit var movieCreditsAdapter: PersonMovieCreditsAdapter
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,6 +64,7 @@ class PersonFragment : Fragment() {
         personBiography = view.findViewById(R.id.person_tv_biography)
         personDob = view.findViewById(R.id.person_tv_dateOfBirth)
         personPlaceOfBirth = view.findViewById(R.id.person_tv_placeOfBirth)
+        movieCreditsRecyclerView = view.findViewById(R.id.person_rv_knownFor)
 
         return view
     }
@@ -65,28 +79,61 @@ class PersonFragment : Fragment() {
 
     private fun updateUiWithData(person: Person?) {
         person?.let {
-            profilePic.load("${RetrofitHelper.IMAGE_BASE_URL}${person.profilePath}")
+            profilePic.load("${IMAGE_BASE_URL}${person.profilePath}")
             personName.text = person.name
             personRole.text = person.knownForDepartment
             personBiography.text = person.biography
             personPlaceOfBirth.text = person.placeOfBirth
             val age = CalculationHelper.findAge(person.birthday)
-            personDob.text = "${person.birthday} (${age} years old)"
+            personDob.text =
+                age?.let { resources.getString(R.string.person_dob, person.birthday, age.toString()) }
+                    ?: "Age : NA"
+
+            movieCreditsRecyclerView.layoutManager =
+                LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+            movieCreditsAdapter = PersonMovieCreditsAdapter { it ->
+                val targetFragment = MovieDetailsFragment()
+                navigateToMovieDetails(it.id, targetFragment)
+            }
+            movieCreditsRecyclerView.adapter = movieCreditsAdapter
+            getPersonMovieCredits(it.id)
+        }
+    }
+
+    private suspend fun getMovieDetail(id: Int): MovieDetails? {
+        return movieRepository.getMovieDetail(id)
+    }
+
+    private fun getPersonMovieCredits(personId: Int) {
+        lifecycleScope.launch {
+            val movieCredits = withContext(Dispatchers.IO) {
+                personRepository.getPersonMovieCredits(personId)
+            }
+            movieCredits?.let {
+                movieCreditsAdapter.submitList(movieCredits)
+            }
         }
     }
 
     private suspend fun getPersonDetail(id: Int): Person? {
-        try {
-            val response = personService.getPersonDetail(id)
-            if (response.isSuccessful) {
-                return response.body()
-            } else {
-                // Handle error
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        return personRepository.getPersonDetail(id)
+    }
 
-        return null
+    private fun navigateToMovieDetails(movieId: Int, targetFragment: Fragment) {
+
+        lifecycleScope.launch {
+            val movieDetail = movieRepository.getMovieDetail(movieId)
+            val bundle = Bundle().apply {
+                putParcelable("movieDetail", movieDetail)
+            }
+            targetFragment.arguments = bundle
+
+            parentFragmentManager.performFragmentTransaction(
+                R.id.home_container,
+                targetFragment,
+                FragmentHelper.REPLACE,
+                true
+            )
+        }
     }
 }

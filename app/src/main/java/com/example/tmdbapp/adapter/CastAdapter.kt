@@ -18,9 +18,9 @@ class CastAdapter(private val itemOnClick: (Cast) -> Unit) :
     private var cast : MutableList<Cast> = emptyList<Cast>().toMutableList()
 
     inner class CastViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val castImageView: ImageView = itemView.findViewById(R.id.rv_item_image)
-        val castNameTextView: TextView = itemView.findViewById(R.id.rv_item_name)
-        val castRoleTextView: TextView = itemView.findViewById(R.id.rv_item_role)
+        val castImageView: ImageView = itemView.findViewById(R.id.rv_item_detail_personImage)
+        val castNameTextView: TextView = itemView.findViewById(R.id.rv_item_detail_personName)
+        val castRoleTextView: TextView = itemView.findViewById(R.id.rv_item_detail_personRole)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CastViewHolder {

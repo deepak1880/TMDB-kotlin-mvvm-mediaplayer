@@ -13,6 +13,6 @@
     <string name="detail_tagline">\"%1$s\"</string>
     <string name="detail_text_castHeader">Cast</string>
     <string name="detail_image_contentDesc">Image of the cast</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="person_dob">%1$s %2$s</string>
+   <string name="person_text_movieRole"> as %1$s </string>
 </resources>

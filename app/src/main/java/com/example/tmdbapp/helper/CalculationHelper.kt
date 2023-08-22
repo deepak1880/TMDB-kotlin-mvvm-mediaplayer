@@ -1,20 +1,19 @@
 package com.example.tmdbapp.helper
 
-import java.text.SimpleDateFormat
-import java.util.Calendar
+import java.time.LocalDate
+import java.time.Period
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 object CalculationHelper {
-    fun findAge(birthday: String) : Int {
-        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-        val date = simpleDateFormat.parse(birthday)
-        val currentDate = Calendar.getInstance()
-        val birthCalendar = Calendar.getInstance()
-        birthCalendar.time = date
-        var age = currentDate.get(Calendar.YEAR) - birthCalendar.get(Calendar.YEAR)
-
-        if (currentDate.get(Calendar.DAY_OF_YEAR) < birthCalendar.get(Calendar.DAY_OF_YEAR)) {
-            age--
+    fun findAge(birthday: String?) : Int? {
+        var age : Int? = null
+        birthday?.let{
+            val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.US)
+            val birthDate = LocalDate.parse(it, dateFormatter)
+            val currentDate = LocalDate.now()
+            val period = Period.between(birthDate, currentDate)
+            age = period.years
         }
         return age
     }

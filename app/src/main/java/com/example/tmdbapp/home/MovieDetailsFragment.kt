@@ -17,18 +17,18 @@ import com.example.tmdbapp.extensions.FragmentHelper
 import com.example.tmdbapp.extensions.performFragmentTransaction
 import com.example.tmdbapp.helper.RetrofitHelper
 import com.example.tmdbapp.model.MovieDetails
-import com.example.tmdbapp.model.people.Cast
+import com.example.tmdbapp.repository.MovieRepositoryImpl
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MovieDetailsFragment : Fragment() {
 
-    private val movieService = RetrofitHelper.movieService
+    private val movieRepository = MovieRepositoryImpl()
     var movieDetails: MovieDetails? = null
-    var cast : List<Cast> = emptyList()
 
     private lateinit var recyclerViewCast: RecyclerView
     private lateinit var castAdapter: CastAdapter
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,7 +51,7 @@ class MovieDetailsFragment : Fragment() {
         movieCover.load(RetrofitHelper.IMAGE_BASE_URL + movieDetails?.backdrop_path)
         // movie title + release year (extracted year from release data)
         val releaseDate = movieDetails?.release_date.toString()
-        val titleText = movieDetails?.original_title.toString()
+        val titleText = movieDetails?.title.toString()
         val yearText = "(${releaseDate.substring(0, 4)})"
         movieTitle.text = "${titleText} ${yearText}"
         // movie tag
@@ -71,14 +71,13 @@ class MovieDetailsFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        movieDetails?.id?.let { getCast(it) }
+        movieDetails?.let { getCast(it.id) }
     }
-
 
     private fun navigateToCastFragment(id: Int) {
         val targetFragment = PersonFragment()
         val bundle = Bundle().apply {
-            putInt("person_id",id)
+            putInt("person_id", id)
         }
         targetFragment.arguments = bundle
 
@@ -90,19 +89,14 @@ class MovieDetailsFragment : Fragment() {
         )
     }
 
+
     private fun getCast(id: Int) {
         lifecycleScope.launch {
-            try {
-                val response = movieService.getMovieCredits(id)
-                if (response.isSuccessful) {
-                    val responseBody = response.body()
-                    cast = responseBody?.cast ?: emptyList()
-                    castAdapter.submitList(cast)
-                } else {
-                    // Handle error
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
+            val castList = withContext(Dispatchers.IO) {
+                movieRepository.getCast(id)
+            }
+            castList?.let {
+                castAdapter.submitList(it)
             }
         }
     }

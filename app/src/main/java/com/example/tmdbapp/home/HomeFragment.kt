@@ -1,8 +1,6 @@
 package com.example.tmdbapp.home
 
-import android.accounts.NetworkErrorException
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,15 +12,15 @@ import com.example.tmdbapp.R
 import com.example.tmdbapp.adapter.MovieAdapter
 import com.example.tmdbapp.extensions.FragmentHelper
 import com.example.tmdbapp.extensions.performFragmentTransaction
-import com.example.tmdbapp.helper.RetrofitHelper
 import com.example.tmdbapp.model.MovieDetails
+import com.example.tmdbapp.repository.MovieRepositoryImpl
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class HomeFragment : Fragment() {
-
-    private val movieService = RetrofitHelper.movieService
+    // repository instance
+    private val movieRepository = MovieRepositoryImpl()
 
     // All recycler views
     lateinit var recyclerViewTopRated: RecyclerView
@@ -97,88 +95,43 @@ class HomeFragment : Fragment() {
 
     private fun getTopRatedMovies() {
         lifecycleScope.launch {
-            try {
-                val response = movieService.getTopRatedMovies()
-                if (response.isSuccessful) {
-                    val responseBody = response.body()
-                    val movies = responseBody?.movies ?: emptyList()
-                    topRatedMovieAdapter.submitList(movies)
-                } else {
-                    // Handle error
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
+            val movies = withContext(Dispatchers.IO) {
+                movieRepository.getTopRatedMovies()
             }
+            movies?.let { topRatedMovieAdapter.submitList(movies) }
         }
     }
 
     private fun getNowPlayingMovies() {
         lifecycleScope.launch {
-            try {
-                val response = movieService.getNowPlayingMovies()
-                if (response.isSuccessful) {
-                    val responseBody = response.body()
-                    val movies = responseBody?.movies ?: emptyList()
-                    nowPlayingMovieAdapter.submitList(movies)
-                } else {
-                    // Handle error
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
+            val movies = withContext(Dispatchers.IO) {
+                movieRepository.getNowPlayingMovies()
             }
+            movies?.let { nowPlayingMovieAdapter.submitList(movies) }
         }
     }
 
     private fun getPopularMovies() {
         lifecycleScope.launch {
-            try {
-                val response = movieService.getPopularMovies()
-                if (response.isSuccessful) {
-                    val responseBody = response.body()
-                    val movies = responseBody?.movies ?: emptyList()
-                    popularMovieAdapter.submitList(movies)
-                } else {
-                    // Handle error
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
+            val movies = withContext(Dispatchers.IO) {
+                movieRepository.getPopularMovies()
             }
+            movies?.let { popularMovieAdapter.submitList(movies) }
         }
     }
 
     // properly written coroutine
     private fun getUpcomingMovies() {
         lifecycleScope.launch {
-            try {
-                val movies =withContext(Dispatchers.IO){
-                    val response = movieService.getUpcomingMovies()
-                if (response.isSuccessful) {
-                    val responseBody = response.body()
-                    responseBody?.movies ?: emptyList()
-
-                } else {
-                    throw NetworkErrorException("Failed to fetch upcoming movies")
-                }
+            val movies = withContext(Dispatchers.IO) {
+                movieRepository.getUpcomingMovies()
             }
-            upcomingMovieAdapter.submitList(movies)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            movies?.let { upcomingMovieAdapter.submitList(movies) }
         }
     }
 
     private suspend fun getMovieDetail(id: Int): MovieDetails? {
-            try {
-                val response = movieService.getMovieDetail(id)
-                if (response.isSuccessful) {
-                    return response.body()
-                } else {
-                    Log.d("Movie-Detail", "Failed : ${response.code()}")
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        return null
+        return movieRepository.getMovieDetail(id)
     }
 
 

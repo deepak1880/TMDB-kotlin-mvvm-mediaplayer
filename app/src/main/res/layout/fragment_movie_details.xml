@@ -6,15 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".home.MovieDetailsFragment">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/detail_fb_back"
-        style=""
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_fb_back"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/detail_image_cover"
         android:layout_width="match_parent"
@@ -52,6 +43,7 @@
         android:id="@+id/detail_tv_overviewBody"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:justificationMode="inter_word"
         android:textColor="@color/white"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/detail_tv_overviewHeader" />
