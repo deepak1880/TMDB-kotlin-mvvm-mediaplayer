@@ -15,6 +15,7 @@ import com.example.tmdbapp.R
 import com.example.tmdbapp.adapter.CastAdapter
 import com.example.tmdbapp.extensions.FragmentHelper
 import com.example.tmdbapp.extensions.performFragmentTransaction
+import com.example.tmdbapp.helper.HorizontalItemMarginDecoration
 import com.example.tmdbapp.helper.RetrofitHelper
 import com.example.tmdbapp.model.MovieDetails
 import com.example.tmdbapp.repository.MovieRepositoryImpl
@@ -29,6 +30,11 @@ class MovieDetailsFragment : Fragment() {
 
     private lateinit var recyclerViewCast: RecyclerView
     private lateinit var castAdapter: CastAdapter
+    private lateinit var movieCover: ImageView
+    private lateinit var movieTitle: TextView
+    private lateinit var movieTag: TextView
+    private lateinit var movieOverviewBody: TextView
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,15 +43,23 @@ class MovieDetailsFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
-
         val view = inflater.inflate(R.layout.fragment_movie_details, container, false)
-        val movieCover = view.findViewById<ImageView>(R.id.detail_image_cover)
-        val movieTitle = view.findViewById<TextView>(R.id.detail_tv_title)
-        val movieTag = view.findViewById<TextView>(R.id.detail_tv_tagline)
-        val movieOverviewBody = view.findViewById<TextView>(R.id.detail_tv_overviewBody)
+        movieCover = view.findViewById(R.id.detail_image_cover)
+        movieTitle = view.findViewById(R.id.detail_tv_title)
+        movieTag = view.findViewById(R.id.detail_tv_tagline)
+        movieOverviewBody = view.findViewById(R.id.detail_tv_overviewBody)
+        recyclerViewCast = view.findViewById(R.id.detail_rv_castBody)
+        return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        updateUI()
+    }
+
+    private fun updateUI() {
+        val itemMarginDecoration = HorizontalItemMarginDecoration(20)
 
         // backdrop
         movieCover.load(RetrofitHelper.IMAGE_BASE_URL + movieDetails?.backdrop_path)
@@ -59,18 +73,16 @@ class MovieDetailsFragment : Fragment() {
         // overview body
         movieOverviewBody.text = movieDetails?.overview
         // recycler view for cast
-        recyclerViewCast = view.findViewById(R.id.detail_rv_castBody)
+
         recyclerViewCast.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         castAdapter = CastAdapter {
             navigateToCastFragment(it.id)
         }
         recyclerViewCast.adapter = castAdapter
+        recyclerViewCast.addItemDecoration(itemMarginDecoration)
 
-        return view
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        //update the cast recycler view
         movieDetails?.let { getCast(it.id) }
     }
 
@@ -82,10 +94,7 @@ class MovieDetailsFragment : Fragment() {
         targetFragment.arguments = bundle
 
         parentFragmentManager.performFragmentTransaction(
-            R.id.home_container,
-            targetFragment,
-            FragmentHelper.REPLACE,
-            true
+            R.id.home_container, targetFragment, FragmentHelper.REPLACE, true
         )
     }
 

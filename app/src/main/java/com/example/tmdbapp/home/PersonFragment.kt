@@ -15,9 +15,9 @@ import com.example.tmdbapp.R
 import com.example.tmdbapp.adapter.PersonMovieCreditsAdapter
 import com.example.tmdbapp.extensions.FragmentHelper
 import com.example.tmdbapp.extensions.performFragmentTransaction
-import com.example.tmdbapp.helper.CalculationHelper
+import com.example.tmdbapp.helper.CalculationHelper.findAge
+import com.example.tmdbapp.helper.HorizontalItemMarginDecoration
 import com.example.tmdbapp.helper.RetrofitHelper.Companion.IMAGE_BASE_URL
-import com.example.tmdbapp.model.MovieDetails
 import com.example.tmdbapp.model.people.Person
 import com.example.tmdbapp.repository.MovieRepositoryImpl
 import com.example.tmdbapp.repository.PersonRepositoryImpl
@@ -84,11 +84,19 @@ class PersonFragment : Fragment() {
             personRole.text = person.knownForDepartment
             personBiography.text = person.biography
             personPlaceOfBirth.text = person.placeOfBirth
-            val age = CalculationHelper.findAge(person.birthday)
+            val age = findAge(person.birthday)
             personDob.text =
-                age?.let { resources.getString(R.string.person_dob, person.birthday, age.toString()) }
+                age?.let {
+                    resources.getString(
+                        R.string.person_dob,
+                        person.birthday,
+                        age.toString()
+                    )
+                }
                     ?: "Age : NA"
 
+            // recycler view
+            val itemMarginDecoration = HorizontalItemMarginDecoration(20)
             movieCreditsRecyclerView.layoutManager =
                 LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
             movieCreditsAdapter = PersonMovieCreditsAdapter { it ->
@@ -96,13 +104,11 @@ class PersonFragment : Fragment() {
                 navigateToMovieDetails(it.id, targetFragment)
             }
             movieCreditsRecyclerView.adapter = movieCreditsAdapter
+            movieCreditsRecyclerView.addItemDecoration(itemMarginDecoration)
             getPersonMovieCredits(it.id)
         }
     }
 
-    private suspend fun getMovieDetail(id: Int): MovieDetails? {
-        return movieRepository.getMovieDetail(id)
-    }
 
     private fun getPersonMovieCredits(personId: Int) {
         lifecycleScope.launch {

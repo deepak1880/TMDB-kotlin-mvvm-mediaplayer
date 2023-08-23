@@ -12,7 +12,8 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_margin="10dp">
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/person_image_profilePic"
@@ -69,17 +70,28 @@
                 android:id="@+id/person_tv_biography"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
                 android:justificationMode="inter_word"
                 android:textColor="@color/white"
                 app:layout_constraintTop_toBottomOf="@id/person_tv_personRole" />
+
+            <TextView
+                android:id="@+id/person_tv_knownFor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/person_text_knownFor"
+                android:textColor="@color/white"
+                android:textSize="25sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/person_tv_biography" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/person_rv_knownFor"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/person_tv_biography" />
+                app:layout_constraintTop_toBottomOf="@id/person_tv_knownFor" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

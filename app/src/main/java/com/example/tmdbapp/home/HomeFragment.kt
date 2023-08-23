@@ -12,6 +12,7 @@ import com.example.tmdbapp.R
 import com.example.tmdbapp.adapter.MovieAdapter
 import com.example.tmdbapp.extensions.FragmentHelper
 import com.example.tmdbapp.extensions.performFragmentTransaction
+import com.example.tmdbapp.helper.HorizontalItemMarginDecoration
 import com.example.tmdbapp.model.MovieDetails
 import com.example.tmdbapp.repository.MovieRepositoryImpl
 import kotlinx.coroutines.Dispatchers
@@ -45,6 +46,8 @@ class HomeFragment : Fragment() {
     ): View? {
 
         val view = inflater.inflate(R.layout.fragment_home, container, false)
+        val commonItemMarginDecoration = HorizontalItemMarginDecoration(20)
+
         // Now Playing section
         recyclerViewNowPlaying = view.findViewById(R.id.home_rv_nowPlaying)
         nowPlayingMovieAdapter = MovieAdapter {
@@ -53,6 +56,7 @@ class HomeFragment : Fragment() {
         recyclerViewNowPlaying.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         recyclerViewNowPlaying.adapter = nowPlayingMovieAdapter
+        recyclerViewNowPlaying.addItemDecoration(commonItemMarginDecoration)
 
         // Popular section
         recyclerViewPopular = view.findViewById(R.id.home_rv_popular)
@@ -62,6 +66,7 @@ class HomeFragment : Fragment() {
         recyclerViewPopular.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         recyclerViewPopular.adapter = popularMovieAdapter
+        recyclerViewPopular.addItemDecoration(commonItemMarginDecoration)
 
         // Top Rated section
         recyclerViewTopRated = view.findViewById(R.id.home_rv_topRated)
@@ -71,6 +76,7 @@ class HomeFragment : Fragment() {
         recyclerViewTopRated.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         recyclerViewTopRated.adapter = topRatedMovieAdapter
+        recyclerViewTopRated.addItemDecoration(commonItemMarginDecoration)
 
         // Upcoming section
         recyclerViewUpcoming = view.findViewById(R.id.home_rv_upcoming)
@@ -80,6 +86,7 @@ class HomeFragment : Fragment() {
         recyclerViewUpcoming.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         recyclerViewUpcoming.adapter = upcomingMovieAdapter
+        recyclerViewUpcoming.addItemDecoration(commonItemMarginDecoration)
 
         return view
     }
