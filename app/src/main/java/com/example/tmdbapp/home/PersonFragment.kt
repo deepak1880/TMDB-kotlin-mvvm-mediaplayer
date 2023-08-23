@@ -18,6 +18,7 @@ import com.example.tmdbapp.extensions.performFragmentTransaction
 import com.example.tmdbapp.helper.CalculationHelper.findAge
 import com.example.tmdbapp.helper.HorizontalItemMarginDecoration
 import com.example.tmdbapp.helper.RetrofitHelper.Companion.IMAGE_BASE_URL
+import com.example.tmdbapp.model.people.Cast
 import com.example.tmdbapp.model.people.Person
 import com.example.tmdbapp.repository.MovieRepositoryImpl
 import com.example.tmdbapp.repository.PersonRepositoryImpl
@@ -47,6 +48,7 @@ class PersonFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
+            val a : Cast? = it.getParcelable("something")
             personId = it.getInt("person_id")
         }
     }

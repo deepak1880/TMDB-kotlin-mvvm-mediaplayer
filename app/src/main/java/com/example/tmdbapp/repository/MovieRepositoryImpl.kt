@@ -15,7 +15,7 @@ class MovieRepositoryImpl : MovieRepository {
 
     override suspend fun getTopRatedMovies(): List<Movie>? {
         try {
-            val response = RetrofitHelper().movieService.getTopRatedMovies()
+            val response = movieService.getTopRatedMovies()
             if (response.isSuccessful) {
                 val responseBody = response.body()
                 return responseBody?.movies ?: emptyList()
