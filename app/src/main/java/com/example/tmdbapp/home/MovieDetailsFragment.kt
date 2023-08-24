@@ -10,15 +10,19 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2
 import coil.load
 import com.example.tmdbapp.R
 import com.example.tmdbapp.adapter.CastAdapter
+import com.example.tmdbapp.adapter.MovieDetailsViewPagerAdapter
 import com.example.tmdbapp.extensions.FragmentHelper
 import com.example.tmdbapp.extensions.performFragmentTransaction
 import com.example.tmdbapp.helper.HorizontalItemMarginDecoration
 import com.example.tmdbapp.helper.RetrofitHelper
 import com.example.tmdbapp.model.MovieDetails
 import com.example.tmdbapp.repository.MovieRepositoryImpl
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -34,6 +38,10 @@ class MovieDetailsFragment : Fragment() {
     private lateinit var movieTitle: TextView
     private lateinit var movieTag: TextView
     private lateinit var movieOverviewBody: TextView
+    private lateinit var tabLayout: TabLayout
+
+    private lateinit var viewPager: ViewPager2
+    lateinit var viewPagerAdapter: MovieDetailsViewPagerAdapter
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,6 +59,10 @@ class MovieDetailsFragment : Fragment() {
         movieTag = view.findViewById(R.id.detail_tv_tagline)
         movieOverviewBody = view.findViewById(R.id.detail_tv_overviewBody)
         recyclerViewCast = view.findViewById(R.id.detail_rv_castBody)
+
+        viewPager = view.findViewById(R.id.detail_viewPager)
+        tabLayout = view.findViewById(R.id.detail_tabLayout)
+
         return view
     }
 
@@ -82,8 +94,23 @@ class MovieDetailsFragment : Fragment() {
         recyclerViewCast.adapter = castAdapter
         recyclerViewCast.addItemDecoration(itemMarginDecoration)
 
-        //update the cast recycler view
-        movieDetails?.let { getCast(it.id) }
+        //update the cast recycler view and update tab layout
+        movieDetails?.let {
+            getCast(it.id)
+            updateViewPagerData(it.id)
+        }
+
+    }
+
+    private fun updateViewPagerData(id : Int) {
+        viewPagerAdapter = MovieDetailsViewPagerAdapter(childFragmentManager, lifecycle,id)
+        viewPager.adapter = viewPagerAdapter
+        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+            when (position) {
+                0 -> tab.text = "Similar Movies"
+                1 -> tab.text = "Trailer"
+            }
+        }.attach()
     }
 
     private fun navigateToCastFragment(id: Int) {

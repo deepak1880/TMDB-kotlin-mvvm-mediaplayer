@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -22,6 +23,9 @@ import kotlinx.coroutines.withContext
 class HomeFragment : Fragment() {
     // repository instance
     private val movieRepository = MovieRepositoryImpl()
+
+    // progress bar
+    lateinit var progressBar: ProgressBar
 
     // All recycler views
     lateinit var recyclerViewTopRated: RecyclerView
@@ -48,6 +52,9 @@ class HomeFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
         val commonItemMarginDecoration = HorizontalItemMarginDecoration(20)
 
+
+        // Progress bar
+        progressBar = view.findViewById(R.id.home_progressBar)
         // Now Playing section
         recyclerViewNowPlaying = view.findViewById(R.id.home_rv_nowPlaying)
         nowPlayingMovieAdapter = MovieAdapter {
@@ -93,12 +100,15 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        updateUIWithData()
+    }
+
+    private fun updateUIWithData() {
         getNowPlayingMovies()
         getTopRatedMovies()
         getPopularMovies()
         getUpcomingMovies()
     }
-
 
     private fun getTopRatedMovies() {
         lifecycleScope.launch {
@@ -134,6 +144,7 @@ class HomeFragment : Fragment() {
                 movieRepository.getUpcomingMovies()
             }
             movies?.let { upcomingMovieAdapter.submitList(movies) }
+            progressBar.visibility = View.GONE
         }
     }
 
