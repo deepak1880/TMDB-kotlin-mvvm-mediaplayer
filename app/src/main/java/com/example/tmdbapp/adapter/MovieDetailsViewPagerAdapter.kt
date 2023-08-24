@@ -6,7 +6,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.example.tmdbapp.home.SimilarMoviesFragment
-import com.example.tmdbapp.home.TrailersFragment
+import com.example.tmdbapp.home.TrailersAndMoreFragment
 
 class MovieDetailsViewPagerAdapter(
     fragmentManager: FragmentManager,
@@ -21,7 +21,7 @@ class MovieDetailsViewPagerAdapter(
         return when (position) {
             0 -> SimilarMoviesFragment()
 
-            1 -> TrailersFragment()
+            1 -> TrailersAndMoreFragment()
 
             else -> SimilarMoviesFragment()
         }.apply {

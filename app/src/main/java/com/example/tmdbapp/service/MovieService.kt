@@ -3,6 +3,7 @@ package com.example.tmdbapp.service
 import com.example.tmdbapp.model.MovieDetails
 import com.example.tmdbapp.model.Result
 import com.example.tmdbapp.model.people.PersonMovieCredits
+import com.example.tmdbapp.model.videos.VideoResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -30,6 +31,9 @@ interface MovieService {
 
     @GET("movie/{movie_id}/similar")
     suspend fun getSimilarMovies(@Path("movie_id")id : Int) : Response<Result>
+
+    @GET("movie/{movie_id}/videos")
+    suspend fun getMovieVideos(@Path("movie_id")id : Int) : Response<VideoResponse>
 
 
 

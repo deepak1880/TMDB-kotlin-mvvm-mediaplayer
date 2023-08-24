@@ -3,6 +3,7 @@ package com.example.tmdbapp.repository
 import com.example.tmdbapp.model.Movie
 import com.example.tmdbapp.model.MovieDetails
 import com.example.tmdbapp.model.people.Cast
+import com.example.tmdbapp.model.videos.Video
 
 interface MovieRepository {
 
@@ -19,4 +20,6 @@ interface MovieRepository {
     suspend fun getCast(id : Int) : List<Cast>?
 
     suspend fun getSimilarMovies(id : Int) : List<Movie>?
+
+    suspend fun getMovieVideos(id : Int) : List<Video>?
 }

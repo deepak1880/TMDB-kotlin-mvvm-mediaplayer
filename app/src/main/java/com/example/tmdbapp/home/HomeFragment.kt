@@ -55,6 +55,7 @@ class HomeFragment : Fragment() {
 
         // Progress bar
         progressBar = view.findViewById(R.id.home_progressBar)
+
         // Now Playing section
         recyclerViewNowPlaying = view.findViewById(R.id.home_rv_nowPlaying)
         nowPlayingMovieAdapter = MovieAdapter {

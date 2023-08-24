@@ -5,6 +5,7 @@ import com.example.tmdbapp.helper.RetrofitHelper
 import com.example.tmdbapp.model.Movie
 import com.example.tmdbapp.model.MovieDetails
 import com.example.tmdbapp.model.people.Cast
+import com.example.tmdbapp.model.videos.Video
 import com.example.tmdbapp.service.MovieService
 
 class MovieRepositoryImpl : MovieRepository {
@@ -116,5 +117,18 @@ class MovieRepositoryImpl : MovieRepository {
             e.printStackTrace()
         }
         return null
+    }
+
+    override suspend fun getMovieVideos(id: Int): List<Video>? {
+        try {
+            val response = movieService.getMovieVideos(id)
+            if (response.isSuccessful) {
+                return response.body()?.videoList
+            } else {
+                throw Exception("Failed to fetch similar movies")
+            }
+        } catch (e: Exception) {
+            throw Exception("Failed to fetch videos")
+        }
     }
 }

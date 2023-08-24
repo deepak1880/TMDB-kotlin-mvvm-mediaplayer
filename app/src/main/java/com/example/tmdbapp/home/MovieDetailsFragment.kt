@@ -107,8 +107,8 @@ class MovieDetailsFragment : Fragment() {
         viewPager.adapter = viewPagerAdapter
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             when (position) {
-                0 -> tab.text = "Similar Movies"
-                1 -> tab.text = "Trailer"
+                0 -> tab.text = "More like this"
+                1 -> tab.text = "Trailer & More"
             }
         }.attach()
     }
