@@ -1,13 +1,14 @@
 package com.example.tmdbapp.repository
 
 import android.accounts.NetworkErrorException
-import com.example.tmdbapp.helper.RetrofitHelper
+import com.example.tmdbapp.helper.NetworkHelper
 import com.example.tmdbapp.model.people.Cast
 import com.example.tmdbapp.model.people.Person
+import com.example.tmdbapp.service.PersonService
 
 class PersonRepositoryImpl : PersonRepository {
 
-    val personService = RetrofitHelper().personService
+    val personService : PersonService= NetworkHelper.personService
 
     override suspend fun getPersonDetail(id: Int): Person? {
         try {

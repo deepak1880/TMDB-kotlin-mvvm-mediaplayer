@@ -8,7 +8,7 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.example.tmdbapp.R
-import com.example.tmdbapp.helper.RetrofitHelper
+import com.example.tmdbapp.helper.NetworkHelper
 import com.example.tmdbapp.model.Movie
 
 class MovieAdapter(val itemOnClick: (Movie) -> Unit) :
@@ -16,14 +16,14 @@ class MovieAdapter(val itemOnClick: (Movie) -> Unit) :
 
     private var movies: MutableList<Movie> = emptyList<Movie>().toMutableList()
 
-
     inner class MovieViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imageView: ImageView = itemView.findViewById(R.id.home_list_images)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder {
         return MovieViewHolder(
-            LayoutInflater.from(parent.context).inflate(R.layout.rv_item_home_movie, parent, false)
+            LayoutInflater.from(parent.context)
+                .inflate(R.layout.rv_subitem_home_section_movie, parent, false)
         )
     }
 
@@ -32,7 +32,7 @@ class MovieAdapter(val itemOnClick: (Movie) -> Unit) :
     }
 
     override fun onBindViewHolder(holder: MovieViewHolder, position: Int) {
-        holder.imageView.load(RetrofitHelper.IMAGE_BASE_URL + movies[position].posterPath)
+        holder.imageView.load(NetworkHelper.IMAGE_BASE_URL + movies[position].posterPath)
 
         holder.itemView.setOnClickListener {
             itemOnClick.invoke(movies[position])
@@ -44,5 +44,6 @@ class MovieAdapter(val itemOnClick: (Movie) -> Unit) :
         movies = moviesList.toMutableList()
         notifyDataSetChanged()
     }
+
 
 }

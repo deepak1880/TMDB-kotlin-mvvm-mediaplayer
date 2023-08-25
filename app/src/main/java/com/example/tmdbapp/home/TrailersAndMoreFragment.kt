@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tmdbapp.R
 import com.example.tmdbapp.adapter.TrailerAndMoreAdapter
-import com.example.tmdbapp.helper.VerticalItemMarginDecoration
+import com.example.tmdbapp.helper.ItemMarginDecorationHelper
 import com.example.tmdbapp.repository.MovieRepositoryImpl
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,7 +33,8 @@ class TrailersAndMoreFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_trailers, container, false)
-        val verticalItemMarginDecoration = VerticalItemMarginDecoration(10)
+        val verticalItemMarginDecoration =
+            ItemMarginDecorationHelper.VerticalItemMarginDecoration(10)
         recyclerView = view.findViewById(R.id.trailer_rv_videos)
         recyclerView.adapter = trailerAndMoreAdapter
         recyclerView.layoutManager = LinearLayoutManager(context,LinearLayoutManager.VERTICAL,false)

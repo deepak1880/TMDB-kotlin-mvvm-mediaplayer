@@ -17,8 +17,8 @@ import com.example.tmdbapp.adapter.CastAdapter
 import com.example.tmdbapp.adapter.MovieDetailsViewPagerAdapter
 import com.example.tmdbapp.extensions.FragmentHelper
 import com.example.tmdbapp.extensions.performFragmentTransaction
-import com.example.tmdbapp.helper.HorizontalItemMarginDecoration
-import com.example.tmdbapp.helper.RetrofitHelper
+import com.example.tmdbapp.helper.ItemMarginDecorationHelper
+import com.example.tmdbapp.helper.NetworkHelper
 import com.example.tmdbapp.model.MovieDetails
 import com.example.tmdbapp.repository.MovieRepositoryImpl
 import com.google.android.material.tabs.TabLayout
@@ -71,10 +71,10 @@ class MovieDetailsFragment : Fragment() {
     }
 
     private fun updateUI() {
-        val itemMarginDecoration = HorizontalItemMarginDecoration(20)
+        val itemMarginDecoration = ItemMarginDecorationHelper.HorizontalItemMarginDecoration(20)
 
         // backdrop
-        movieCover.load(RetrofitHelper.IMAGE_BASE_URL + movieDetails?.backdrop_path)
+        movieCover.load(NetworkHelper.IMAGE_BASE_URL + movieDetails?.backdrop_path)
         // movie title + release year (extracted year from release data)
         val releaseDate = movieDetails?.release_date.toString()
         val titleText = movieDetails?.title.toString()

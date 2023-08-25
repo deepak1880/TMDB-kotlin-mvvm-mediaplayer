@@ -18,4 +18,10 @@
     <string name="person_text_knownFor">Known For</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="offline_tv_noInternetTitle">No Internet :(</string>
+    <string name="offline_tv_noInternetBody">
+        Slow or no internet connection.
+        Please check your internet settings.
+    </string>
+    <string name="offline_btn_retry">Retry</string>
 </resources>

@@ -16,8 +16,8 @@ import com.example.tmdbapp.adapter.PersonMovieCreditsAdapter
 import com.example.tmdbapp.extensions.FragmentHelper
 import com.example.tmdbapp.extensions.performFragmentTransaction
 import com.example.tmdbapp.helper.CalculationHelper.findAge
-import com.example.tmdbapp.helper.HorizontalItemMarginDecoration
-import com.example.tmdbapp.helper.RetrofitHelper.Companion.IMAGE_BASE_URL
+import com.example.tmdbapp.helper.ItemMarginDecorationHelper
+import com.example.tmdbapp.helper.NetworkHelper.IMAGE_BASE_URL
 import com.example.tmdbapp.model.people.Person
 import com.example.tmdbapp.repository.MovieRepositoryImpl
 import com.example.tmdbapp.repository.PersonRepositoryImpl
@@ -96,7 +96,7 @@ class PersonFragment : Fragment() {
                     ?: "Age : NA"
 
             // recycler view
-            val itemMarginDecoration = HorizontalItemMarginDecoration(20)
+            val itemMarginDecoration = ItemMarginDecorationHelper.HorizontalItemMarginDecoration(20)
             movieCreditsRecyclerView.layoutManager =
                 LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
             movieCreditsAdapter = PersonMovieCreditsAdapter { it ->

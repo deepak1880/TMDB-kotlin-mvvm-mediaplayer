@@ -9,7 +9,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.example.tmdbapp.R
-import com.example.tmdbapp.helper.RetrofitHelper
+import com.example.tmdbapp.helper.NetworkHelper
 import com.example.tmdbapp.model.people.Cast
 
 class PersonMovieCreditsAdapter(private val itemOnClick: (Cast) -> Unit) :
@@ -35,7 +35,7 @@ class PersonMovieCreditsAdapter(private val itemOnClick: (Cast) -> Unit) :
 
     override fun onBindViewHolder(holder: PersonMovieCreditsViewHolder, position: Int) {
         holder.movieImageView.load(
-            "${RetrofitHelper.IMAGE_BASE_URL}${movieCredits[position].poster_path}"
+            "${NetworkHelper.IMAGE_BASE_URL}${movieCredits[position].poster_path}"
         )
         holder.movieNameTextView.text = movieCredits[position].original_title
         val text = "as ${movieCredits[position].character}"

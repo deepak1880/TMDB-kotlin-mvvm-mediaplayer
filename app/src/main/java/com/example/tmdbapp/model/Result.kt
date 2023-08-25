@@ -3,6 +3,7 @@ package com.example.tmdbapp.model
 import com.google.gson.annotations.SerializedName
 
 data class Result(
+    val title : String,
     @SerializedName("page")
     val page: Int,
     @SerializedName("results")

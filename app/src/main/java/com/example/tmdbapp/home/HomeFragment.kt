@@ -10,11 +10,15 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tmdbapp.R
-import com.example.tmdbapp.adapter.MovieAdapter
+import com.example.tmdbapp.adapter.HomeAdapter
+import com.example.tmdbapp.error.OfflineFragment
 import com.example.tmdbapp.extensions.FragmentHelper
 import com.example.tmdbapp.extensions.performFragmentTransaction
-import com.example.tmdbapp.helper.HorizontalItemMarginDecoration
+import com.example.tmdbapp.helper.ItemMarginDecorationHelper
+import com.example.tmdbapp.helper.NetworkHelper
+import com.example.tmdbapp.model.Movie
 import com.example.tmdbapp.model.MovieDetails
+import com.example.tmdbapp.model.recyclerviews.HomeRecyclerView
 import com.example.tmdbapp.repository.MovieRepositoryImpl
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -27,21 +31,16 @@ class HomeFragment : Fragment() {
     // progress bar
     lateinit var progressBar: ProgressBar
 
-    // All recycler views
-    lateinit var recyclerViewTopRated: RecyclerView
-    lateinit var recyclerViewNowPlaying: RecyclerView
-    lateinit var recyclerViewPopular: RecyclerView
-    lateinit var recyclerViewUpcoming: RecyclerView
+    // recycler view
+    lateinit var homeRecyclerView: RecyclerView
 
-    // All the adapters
-    private lateinit var nowPlayingMovieAdapter: MovieAdapter
-    private lateinit var topRatedMovieAdapter: MovieAdapter
-    private lateinit var popularMovieAdapter: MovieAdapter
-    private lateinit var upcomingMovieAdapter: MovieAdapter
+    // home recyclerview adapter
+    private val homeAdapter = HomeAdapter {
+        navigateToMovieDetails(it.id)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
     }
 
     override fun onCreateView(
@@ -49,53 +48,26 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
+        if(context?.let { NetworkHelper.isInternetConnected(it) } == false){
+            parentFragmentManager.performFragmentTransaction(
+                R.id.home_container,
+                OfflineFragment(),
+                FragmentHelper.REPLACE,
+                false
+            )
+        }
+
         val view = inflater.inflate(R.layout.fragment_home, container, false)
-        val commonItemMarginDecoration = HorizontalItemMarginDecoration(20)
-
-
+        val commonItemMarginDecoration = ItemMarginDecorationHelper.VerticalItemMarginDecoration(20)
         // Progress bar
         progressBar = view.findViewById(R.id.home_progressBar)
-
-        // Now Playing section
-        recyclerViewNowPlaying = view.findViewById(R.id.home_rv_nowPlaying)
-        nowPlayingMovieAdapter = MovieAdapter {
-            navigateToMovieDetails(it.id)
-        }
-        recyclerViewNowPlaying.layoutManager =
-            LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        recyclerViewNowPlaying.adapter = nowPlayingMovieAdapter
-        recyclerViewNowPlaying.addItemDecoration(commonItemMarginDecoration)
-
-        // Popular section
-        recyclerViewPopular = view.findViewById(R.id.home_rv_popular)
-        popularMovieAdapter = MovieAdapter {
-            navigateToMovieDetails(it.id)
-        }
-        recyclerViewPopular.layoutManager =
-            LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        recyclerViewPopular.adapter = popularMovieAdapter
-        recyclerViewPopular.addItemDecoration(commonItemMarginDecoration)
-
-        // Top Rated section
-        recyclerViewTopRated = view.findViewById(R.id.home_rv_topRated)
-        topRatedMovieAdapter = MovieAdapter {
-            navigateToMovieDetails(it.id)
-        }
-        recyclerViewTopRated.layoutManager =
-            LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        recyclerViewTopRated.adapter = topRatedMovieAdapter
-        recyclerViewTopRated.addItemDecoration(commonItemMarginDecoration)
-
-        // Upcoming section
-        recyclerViewUpcoming = view.findViewById(R.id.home_rv_upcoming)
-        upcomingMovieAdapter = MovieAdapter {
-            navigateToMovieDetails(it.id)
-        }
-        recyclerViewUpcoming.layoutManager =
-            LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        recyclerViewUpcoming.adapter = upcomingMovieAdapter
-        recyclerViewUpcoming.addItemDecoration(commonItemMarginDecoration)
-
+        // recycler view
+        homeRecyclerView = view.findViewById(R.id.home_rv_homeRv)
+        homeRecyclerView.layoutManager =
+            LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        homeRecyclerView.setHasFixedSize(true)
+        homeRecyclerView.addItemDecoration(commonItemMarginDecoration)
+        homeRecyclerView.adapter = homeAdapter
         return view
     }
 
@@ -105,48 +77,47 @@ class HomeFragment : Fragment() {
     }
 
     private fun updateUIWithData() {
-        getNowPlayingMovies()
-        getTopRatedMovies()
-        getPopularMovies()
-        getUpcomingMovies()
-    }
-
-    private fun getTopRatedMovies() {
         lifecycleScope.launch {
-            val movies = withContext(Dispatchers.IO) {
-                movieRepository.getTopRatedMovies()
-            }
-            movies?.let { topRatedMovieAdapter.submitList(movies) }
+            val nowPlayingMovies = getNowPlayingMovies()
+            val topRatedMovies = getTopRatedMovies()
+            val popularMovies = getPopularMovies()
+            val upcomingMovies = getUpcomingMovies()
+
+            // Update the adapter here with the fetched data
+            val data = listOf(
+                HomeRecyclerView("Now Playing", nowPlayingMovies),
+                HomeRecyclerView("Top Rated", topRatedMovies),
+                HomeRecyclerView("Popular", popularMovies),
+                HomeRecyclerView("Upcoming", upcomingMovies)
+            )
+            homeAdapter.submitList(data)
+            progressBar.visibility = View.GONE
         }
     }
 
-    private fun getNowPlayingMovies() {
-        lifecycleScope.launch {
-            val movies = withContext(Dispatchers.IO) {
-                movieRepository.getNowPlayingMovies()
-            }
-            movies?.let { nowPlayingMovieAdapter.submitList(movies) }
-        }
+    private suspend fun getTopRatedMovies(): List<Movie> {
+        return withContext(Dispatchers.IO) {
+            movieRepository.getTopRatedMovies()
+        } ?: emptyList()
     }
 
-    private fun getPopularMovies() {
-        lifecycleScope.launch {
-            val movies = withContext(Dispatchers.IO) {
-                movieRepository.getPopularMovies()
-            }
-            movies?.let { popularMovieAdapter.submitList(movies) }
-        }
+    private suspend fun getNowPlayingMovies(): List<Movie> {
+        return withContext(Dispatchers.IO) {
+            movieRepository.getNowPlayingMovies()
+        } ?: emptyList()
+    }
+
+    private suspend fun getPopularMovies(): List<Movie> {
+        return withContext(Dispatchers.IO) {
+            movieRepository.getPopularMovies()
+        } ?: emptyList()
     }
 
     // properly written coroutine
-    private fun getUpcomingMovies() {
-        lifecycleScope.launch {
-            val movies = withContext(Dispatchers.IO) {
-                movieRepository.getUpcomingMovies()
-            }
-            movies?.let { upcomingMovieAdapter.submitList(movies) }
-            progressBar.visibility = View.GONE
-        }
+    private suspend fun getUpcomingMovies(): List<Movie> {
+        return withContext(Dispatchers.IO) {
+            movieRepository.getUpcomingMovies()
+        } ?: emptyList()
     }
 
     private suspend fun getMovieDetail(id: Int): MovieDetails? {

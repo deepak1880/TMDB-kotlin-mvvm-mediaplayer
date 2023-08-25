@@ -1,12 +1,12 @@
 package com.example.tmdbapp.interceptor
 
-import com.example.tmdbapp.helper.RetrofitHelper
+import com.example.tmdbapp.helper.NetworkHelper
 import okhttp3.Interceptor
 import okhttp3.Response
 
 class MovieApiInterceptor : Interceptor {
     private val API_KEY_TAG = "api_key"
-    private val apiKey = RetrofitHelper.API_KEY
+    private val apiKey = NetworkHelper.API_KEY
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()
         val newRequest = originalRequest

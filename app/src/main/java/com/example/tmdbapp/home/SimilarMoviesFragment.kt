@@ -12,7 +12,7 @@ import com.example.tmdbapp.R
 import com.example.tmdbapp.adapter.MovieAdapter
 import com.example.tmdbapp.extensions.FragmentHelper
 import com.example.tmdbapp.extensions.performFragmentTransaction
-import com.example.tmdbapp.helper.GridItemMarginDecoration
+import com.example.tmdbapp.helper.ItemMarginDecorationHelper
 import com.example.tmdbapp.repository.MovieRepositoryImpl
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -36,7 +36,7 @@ class SimilarMoviesFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_similar_movies, container, false)
-        val commonItemMarginDecoration = GridItemMarginDecoration(10)
+        val commonItemMarginDecoration = ItemMarginDecorationHelper.GridItemMarginDecoration(10)
         recyclerView = view.findViewById(R.id.similarMovies_rv_movies)
         movieAdapter = MovieAdapter {
             val targetFragment = MovieDetailsFragment()

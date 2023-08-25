@@ -1,7 +1,7 @@
 package com.example.tmdbapp.repository
 
 import android.util.Log
-import com.example.tmdbapp.helper.RetrofitHelper
+import com.example.tmdbapp.helper.NetworkHelper
 import com.example.tmdbapp.model.Movie
 import com.example.tmdbapp.model.MovieDetails
 import com.example.tmdbapp.model.people.Cast
@@ -11,7 +11,7 @@ import com.example.tmdbapp.service.MovieService
 class MovieRepositoryImpl : MovieRepository {
 
     private val TAG = "Movie Repository"
-    private val movieService: MovieService = RetrofitHelper().movieService
+    private val movieService: MovieService = NetworkHelper.movieService
 
     override suspend fun getTopRatedMovies(): List<Movie>? {
         try {

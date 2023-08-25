@@ -9,7 +9,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.example.tmdbapp.R
-import com.example.tmdbapp.helper.RetrofitHelper
+import com.example.tmdbapp.helper.NetworkHelper
 import com.example.tmdbapp.model.people.Cast
 
 
@@ -34,7 +34,7 @@ class CastAdapter(private val itemOnClick: (Cast) -> Unit) :
     }
 
     override fun onBindViewHolder(holder: CastViewHolder, position: Int) {
-        holder.castImageView.load(RetrofitHelper.IMAGE_BASE_URL + cast[position].profile_path)
+        holder.castImageView.load(NetworkHelper.IMAGE_BASE_URL + cast[position].profile_path)
         holder.castNameTextView.text = cast[position].name
         holder.castRoleTextView.text = cast[position].character
 
