@@ -1,37 +1,37 @@
 package com.example.tmdbapp.home
 
+import android.content.IntentFilter
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.example.tmdbapp.R
 import com.example.tmdbapp.adapter.PersonMovieCreditsAdapter
+import com.example.tmdbapp.databinding.FragmentPersonBinding
+import com.example.tmdbapp.error.OfflineFragment
 import com.example.tmdbapp.extensions.FragmentHelper
 import com.example.tmdbapp.extensions.performFragmentTransaction
 import com.example.tmdbapp.helper.CalculationHelper.findAge
 import com.example.tmdbapp.helper.ItemMarginDecorationHelper
 import com.example.tmdbapp.helper.NetworkHelper.IMAGE_BASE_URL
+import com.example.tmdbapp.helper.ResponseHelper
 import com.example.tmdbapp.model.people.Person
-import com.example.tmdbapp.repository.MovieRepositoryImpl
-import com.example.tmdbapp.repository.PersonRepositoryImpl
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.example.tmdbapp.receivers.ConnectivityReceiver
+import com.example.tmdbapp.viewmodel.PersonViewModel
+import com.example.tmdbapp.viewmodel.PersonViewModelFactory
 
 
 class PersonFragment : Fragment() {
 
-    var personId: Int = -1
-    private var person: Person? = null
-    private val movieRepository = MovieRepositoryImpl()
-    private val personRepository = PersonRepositoryImpl()
+    private var personId: Int = -1
 
     // views
     lateinit var profilePic: ImageView
@@ -43,6 +43,11 @@ class PersonFragment : Fragment() {
     lateinit var movieCreditsRecyclerView: RecyclerView
     lateinit var movieCreditsAdapter: PersonMovieCreditsAdapter
 
+    private lateinit var connectivityReceiver: ConnectivityReceiver
+
+    private lateinit var binding: FragmentPersonBinding
+
+    lateinit var personViewModel: PersonViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,27 +59,64 @@ class PersonFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
-        val view = inflater.inflate(R.layout.fragment_person, container, false)
+        binding = FragmentPersonBinding.inflate(layoutInflater)
+        val view = binding.root
 
-        profilePic = view.findViewById(R.id.person_image_profilePic)
-        personName = view.findViewById(R.id.person_tv_personName)
-        personRole = view.findViewById(R.id.person_tv_personRole)
-        personBiography = view.findViewById(R.id.person_tv_biography)
-        personDob = view.findViewById(R.id.person_tv_dateOfBirth)
-        personPlaceOfBirth = view.findViewById(R.id.person_tv_placeOfBirth)
-        movieCreditsRecyclerView = view.findViewById(R.id.person_rv_knownFor)
+        connectivityReceiver = ConnectivityReceiver { isConnected ->
+            if (!isConnected) {
+                parentFragmentManager.performFragmentTransaction(
+                    R.id.home_container,
+                    OfflineFragment(),
+                    FragmentHelper.REPLACE
+                )
+            }
+        }
+
+        profilePic = binding.personImageProfilePic
+        personName = binding.personTvPersonName
+        personRole = binding.personTvPersonRole
+        personBiography = binding.personTvBiography
+        personDob = binding.personTvDateOfBirth
+        personPlaceOfBirth = binding.personTvPlaceOfBirth
+        movieCreditsRecyclerView = binding.personRvKnownFor
 
         return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        lifecycleScope.launch {
-            person = getPersonDetail(personId)
-            updateUiWithData(person)
+        personViewModel =
+            ViewModelProvider(this, PersonViewModelFactory(personId))[PersonViewModel::class.java]
+
+        personViewModel.personDetail.observe(viewLifecycleOwner) { personResponse ->
+            when (personResponse) {
+                is ResponseHelper.Success -> {
+                    updateUiWithData(personResponse.data)
+                    binding.shimmerViewContainer.visibility = View.GONE
+                }
+
+                is ResponseHelper.Error -> {
+
+                }
+
+                is ResponseHelper.Loading -> {
+                    binding.shimmerViewContainer.visibility = View.VISIBLE
+                }
+            }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val filter = IntentFilter("android.net.conn.CONNECTIVITY_CHANGE")
+        requireActivity().registerReceiver(connectivityReceiver, filter)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        requireActivity().unregisterReceiver(connectivityReceiver)
     }
 
     private fun updateUiWithData(person: Person?) {
@@ -99,47 +141,45 @@ class PersonFragment : Fragment() {
             val itemMarginDecoration = ItemMarginDecorationHelper.HorizontalItemMarginDecoration(20)
             movieCreditsRecyclerView.layoutManager =
                 LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-            movieCreditsAdapter = PersonMovieCreditsAdapter { it ->
+            movieCreditsAdapter = PersonMovieCreditsAdapter { cast ->
                 val targetFragment = MovieDetailsFragment()
-                navigateToMovieDetails(it.id, targetFragment)
+                navigateToMovieDetails(cast.id, targetFragment)
             }
             movieCreditsRecyclerView.adapter = movieCreditsAdapter
             movieCreditsRecyclerView.addItemDecoration(itemMarginDecoration)
-            getPersonMovieCredits(it.id)
-        }
-    }
 
+            personViewModel.movieCredits.observe(viewLifecycleOwner) { castListResponse ->
+                when (castListResponse) {
+                    is ResponseHelper.Success -> {
+                        Log.e("Cast list: ",castListResponse.data.toString())
+                        movieCreditsAdapter.submitList(castListResponse.data ?: emptyList())
+                        binding.shimmerRvContainer.visibility = View.GONE
+                    }
 
-    private fun getPersonMovieCredits(personId: Int) {
-        lifecycleScope.launch {
-            val movieCredits = withContext(Dispatchers.IO) {
-                personRepository.getPersonMovieCredits(personId)
+                    is ResponseHelper.Error -> {
+                    }
+
+                    is ResponseHelper.Loading -> {
+                        binding.shimmerRvContainer.startShimmer()
+                    }
+
+                }
             }
-            movieCredits?.let {
-                movieCreditsAdapter.submitList(movieCredits)
-            }
         }
-    }
-
-    private suspend fun getPersonDetail(id: Int): Person? {
-        return personRepository.getPersonDetail(id)
     }
 
     private fun navigateToMovieDetails(movieId: Int, targetFragment: Fragment) {
-
-        lifecycleScope.launch {
-            val movieDetail = movieRepository.getMovieDetail(movieId)
-            val bundle = Bundle().apply {
-                putParcelable("movieDetail", movieDetail)
-            }
-            targetFragment.arguments = bundle
-
-            parentFragmentManager.performFragmentTransaction(
-                R.id.home_container,
-                targetFragment,
-                FragmentHelper.REPLACE,
-                true
-            )
+        val bundle = Bundle().apply {
+            putInt("movieId", movieId)
         }
+        targetFragment.arguments = bundle
+
+        parentFragmentManager.performFragmentTransaction(
+            R.id.home_container,
+            targetFragment,
+            FragmentHelper.REPLACE,
+            true
+        )
     }
+
 }

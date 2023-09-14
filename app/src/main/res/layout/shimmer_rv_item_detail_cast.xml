@@ -6,18 +6,16 @@
         android:layout_height="match_parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:strokeWidth="0dp"
-    android:layout_marginEnd="5dp">
-
+        app:strokeWidth="0dp">
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-
             <ImageView
                 android:id="@+id/rv_item_detail_personImage"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 android:contentDescription="@string/detail_image_contentDesc"
+                android:background="@color/shimmer_background"
                 android:scaleType="fitXY"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -26,10 +24,9 @@
                 android:id="@+id/rv_item_detail_personName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:background="@color/shimmer_background"
                 android:maxLines="2"
-                android:paddingStart="8dp"
-                android:paddingTop="8dp"
-                android:paddingEnd="8dp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/rv_item_detail_personImage" />
@@ -39,8 +36,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:maxLines="2"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
+                android:layout_marginTop="5dp"
+                android:background="@color/shimmer_background"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/rv_item_detail_personName" />
         </androidx.constraintlayout.widget.ConstraintLayout>

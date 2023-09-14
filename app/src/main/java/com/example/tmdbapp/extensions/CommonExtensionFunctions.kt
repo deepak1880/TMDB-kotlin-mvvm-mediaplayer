@@ -1,5 +1,6 @@
 package com.example.tmdbapp.extensions
 
+import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 
@@ -22,4 +23,12 @@ fun FragmentManager.performFragmentTransaction(
 
     if(addToBackStack) ft.addToBackStack(null)
     ft.commit()
+}
+
+fun View.gone(){
+    this.visibility=View.GONE
+}
+
+fun View.visible(){
+    this.visibility=View.VISIBLE
 }

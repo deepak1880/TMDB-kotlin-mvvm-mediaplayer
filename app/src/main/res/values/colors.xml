@@ -4,4 +4,6 @@
     <color name="white">#FFFFFFFF</color>
     <color name = "colorPrimary">#031E39</color>
     <color name = "error">#B00020</color>
+    <color name="shimmer_background">#DDDDDD</color>
+
 </resources>

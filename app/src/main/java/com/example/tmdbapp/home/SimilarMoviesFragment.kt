@@ -1,43 +1,66 @@
 package com.example.tmdbapp.home
 
+import android.content.IntentFilter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tmdbapp.R
 import com.example.tmdbapp.adapter.MovieAdapter
+import com.example.tmdbapp.databinding.FragmentSimilarMoviesBinding
+import com.example.tmdbapp.error.OfflineFragment
 import com.example.tmdbapp.extensions.FragmentHelper
 import com.example.tmdbapp.extensions.performFragmentTransaction
 import com.example.tmdbapp.helper.ItemMarginDecorationHelper
-import com.example.tmdbapp.repository.MovieRepositoryImpl
-import kotlinx.coroutines.Dispatchers
+import com.example.tmdbapp.helper.ResponseHelper
+import com.example.tmdbapp.receivers.ConnectivityReceiver
+import com.example.tmdbapp.viewmodel.MovieDetailViewModel
+import com.example.tmdbapp.viewmodel.MovieDetailViewModelFactory
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class SimilarMoviesFragment : Fragment() {
-    var movieId: Int? = null
-    private val movieRepository = MovieRepositoryImpl()
+    var movieId: Int = -1
     lateinit var recyclerView: RecyclerView
+
     lateinit var movieAdapter: MovieAdapter
+
+    private lateinit var connectivityReceiver: ConnectivityReceiver
+
+    private lateinit var binding: FragmentSimilarMoviesBinding
+
+    lateinit var movieDetailsViewModel: MovieDetailViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            movieId = it.getInt("movie id")
+            movieId = it.getInt("movie_id")
         }
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_similar_movies, container, false)
+        binding = FragmentSimilarMoviesBinding.inflate(layoutInflater)
+        val view = binding.root
+
+        connectivityReceiver = ConnectivityReceiver { isConnected ->
+            if (!isConnected) {
+                parentFragmentManager.performFragmentTransaction(
+                    R.id.home_container,
+                    OfflineFragment(),
+                    FragmentHelper.REPLACE
+                )
+            }
+        }
+
         val commonItemMarginDecoration = ItemMarginDecorationHelper.GridItemMarginDecoration(10)
-        recyclerView = view.findViewById(R.id.similarMovies_rv_movies)
+        recyclerView = binding.similarMoviesRvMovies
         movieAdapter = MovieAdapter {
             val targetFragment = MovieDetailsFragment()
             navigateToMovieDetails(it.id, targetFragment)
@@ -48,38 +71,60 @@ class SimilarMoviesFragment : Fragment() {
         return view
     }
 
-    private fun navigateToMovieDetails(movieId: Int, targetFragment: MovieDetailsFragment) {
-        lifecycleScope.launch {
-            val movieDetail = movieRepository.getMovieDetail(movieId)
-            val bundle = Bundle().apply {
-                putParcelable("movieDetail", movieDetail)
-            }
-            targetFragment.arguments = bundle
-
-            requireActivity().supportFragmentManager.performFragmentTransaction(
-                R.id.home_container,
-                targetFragment,
-                FragmentHelper.REPLACE,
-                true
-            )
-        }
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        movieId?.let {
-            updateUiWithData(it)
+        movieDetailsViewModel =
+            ViewModelProvider(
+                this,
+                MovieDetailViewModelFactory(movieId)
+            )[MovieDetailViewModel::class.java]
+
+        updateUiWithData()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val filter = IntentFilter("android.net.conn.CONNECTIVITY_CHANGE")
+        requireActivity().registerReceiver(connectivityReceiver, filter)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        requireActivity().unregisterReceiver(connectivityReceiver)
+    }
+
+    private fun updateUiWithData() {
+        lifecycleScope.launch {
+            movieDetailsViewModel.similarMovies.observe(viewLifecycleOwner) { similarMovieResponse ->
+                when (similarMovieResponse) {
+                    is ResponseHelper.Success -> {
+                        movieAdapter.submitList(similarMovieResponse.data)
+                    }
+
+                    is ResponseHelper.Error -> {
+
+                    }
+
+                    is ResponseHelper.Loading -> {
+
+                    }
+                }
+
+            }
         }
     }
 
-    private fun updateUiWithData(movieId: Int) {
-        lifecycleScope.launch {
-            val movies = withContext(Dispatchers.IO) {
-                movieRepository.getSimilarMovies(movieId)
-            }
-            movies?.let {
-                movieAdapter.submitList(it)
-            }
+    private fun navigateToMovieDetails(movieId: Int, targetFragment: MovieDetailsFragment) {
+        val bundle = Bundle().apply {
+            putInt("movieId", movieId)
         }
+        targetFragment.arguments = bundle
+
+        requireActivity().supportFragmentManager.performFragmentTransaction(
+            R.id.home_container,
+            targetFragment,
+            FragmentHelper.REPLACE,
+            true
+        )
     }
 }

@@ -1,7 +1,7 @@
 package com.example.tmdbapp.repository
 
-import android.accounts.NetworkErrorException
 import com.example.tmdbapp.helper.NetworkHelper
+import com.example.tmdbapp.helper.ResponseHelper
 import com.example.tmdbapp.model.people.Cast
 import com.example.tmdbapp.model.people.Person
 import com.example.tmdbapp.service.PersonService
@@ -10,33 +10,31 @@ class PersonRepositoryImpl : PersonRepository {
 
     val personService : PersonService= NetworkHelper.personService
 
-    override suspend fun getPersonDetail(id: Int): Person? {
-        try {
-            val response = personService.getPersonDetail(id)
+    override suspend fun getPersonDetail(personId: Int): ResponseHelper<Person> {
+        return try {
+            val response = personService.getPersonDetail(personId)
             if (response.isSuccessful) {
-                return response.body()
+                val responseBody = response.body()
+                ResponseHelper.Success(responseBody)
             } else {
-                throw NetworkErrorException("Failed to fetch person's details")
+                ResponseHelper.Error("Failed to fetch person's details")
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            ResponseHelper.Error(e.message.toString())
         }
-
-        return null
     }
 
-    override suspend fun getPersonMovieCredits(personId: Int): List<Cast>? {
-        try {
+    override suspend fun getPersonMovieCredits(personId: Int): ResponseHelper<List<Cast>> {
+        return try {
             val response = personService.getPersonMovieCredits(personId)
             if (response.isSuccessful) {
                 val responseBody = response.body()
-                return responseBody?.cast ?: emptyList()
+                ResponseHelper.Success(responseBody?.cast)
             } else {
-                throw NetworkErrorException("Failed to fetch person's movie credits")
+                ResponseHelper.Error("Failed to fetch person's movie credits")
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            ResponseHelper.Error(e.message.toString())
         }
-        return null
     }
 }

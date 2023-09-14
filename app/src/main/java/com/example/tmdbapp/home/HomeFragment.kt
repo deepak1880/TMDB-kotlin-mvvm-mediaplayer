@@ -4,65 +4,63 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tmdbapp.R
 import com.example.tmdbapp.adapter.HomeAdapter
-import com.example.tmdbapp.error.OfflineFragment
+import com.example.tmdbapp.databinding.FragmentHomeBinding
 import com.example.tmdbapp.extensions.FragmentHelper
 import com.example.tmdbapp.extensions.performFragmentTransaction
 import com.example.tmdbapp.helper.ItemMarginDecorationHelper
-import com.example.tmdbapp.helper.NetworkHelper
-import com.example.tmdbapp.model.Movie
-import com.example.tmdbapp.model.MovieDetails
-import com.example.tmdbapp.model.recyclerviews.HomeRecyclerView
-import com.example.tmdbapp.repository.MovieRepositoryImpl
-import kotlinx.coroutines.Dispatchers
+import com.example.tmdbapp.helper.ResponseHelper
+import com.example.tmdbapp.helper.Status
+import com.example.tmdbapp.receivers.ConnectivityReceiver
+import com.example.tmdbapp.viewmodel.HomeViewModel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class HomeFragment : Fragment() {
-    // repository instance
-    private val movieRepository = MovieRepositoryImpl()
-
-    // progress bar
-    lateinit var progressBar: ProgressBar
 
     // recycler view
     lateinit var homeRecyclerView: RecyclerView
 
     // home recyclerview adapter
-    private val homeAdapter = HomeAdapter {
-        navigateToMovieDetails(it.id)
-    }
+    lateinit var homeAdapter: HomeAdapter
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
+    // internet connectivity receiver
+    private lateinit var connectivityReceiver: ConnectivityReceiver
+
+    // view binding
+    private lateinit var binding: FragmentHomeBinding
+
+    //view model
+    val homeViewModel by viewModels<HomeViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
-        if(context?.let { NetworkHelper.isInternetConnected(it) } == false){
-            parentFragmentManager.performFragmentTransaction(
-                R.id.home_container,
-                OfflineFragment(),
-                FragmentHelper.REPLACE,
-                false
-            )
-        }
+//        connectivityReceiver = ConnectivityReceiver { isConnected ->
+//            if (!isConnected) {
+//                parentFragmentManager.performFragmentTransaction(
+//                    R.id.home_container,
+//                    OfflineFragment(),
+//                    FragmentHelper.REPLACE
+//                )
+//            }
+//        }
 
-        val view = inflater.inflate(R.layout.fragment_home, container, false)
+        binding = FragmentHomeBinding.inflate(layoutInflater)
+        val view = binding.root
         val commonItemMarginDecoration = ItemMarginDecorationHelper.VerticalItemMarginDecoration(20)
-        // Progress bar
-        progressBar = view.findViewById(R.id.home_progressBar)
         // recycler view
-        homeRecyclerView = view.findViewById(R.id.home_rv_homeRv)
+        homeAdapter = HomeAdapter {
+            navigateToMovieDetails(it.id)
+        }
+        homeRecyclerView = binding.homeRvHomeRv
         homeRecyclerView.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         homeRecyclerView.setHasFixedSize(true)
@@ -76,75 +74,152 @@ class HomeFragment : Fragment() {
         updateUIWithData()
     }
 
+    override fun onResume() {
+        super.onResume()
+//        val filter = IntentFilter("android.net.conn.CONNECTIVITY_CHANGE")
+//        requireActivity().registerReceiver(connectivityReceiver, filter)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+//        requireActivity().unregisterReceiver(connectivityReceiver)
+    }
+
     private fun updateUIWithData() {
         lifecycleScope.launch {
-            val nowPlayingMovies = getNowPlayingMovies()
-            val topRatedMovies = getTopRatedMovies()
-            val popularMovies = getPopularMovies()
-            val upcomingMovies = getUpcomingMovies()
+            homeViewModel.popularMovies.observe(viewLifecycleOwner) { popularMovieResponse ->
 
-            // Update the adapter here with the fetched data
-            val data = listOf(
-                HomeRecyclerView("Now Playing", nowPlayingMovies),
-                HomeRecyclerView("Top Rated", topRatedMovies),
-                HomeRecyclerView("Popular", popularMovies),
-                HomeRecyclerView("Upcoming", upcomingMovies)
-            )
-            homeAdapter.submitList(data)
-            progressBar.visibility = View.GONE
-        }
-    }
+//                homeAdapter.submitData(HomeModel("Popular", popularMovieList))
+                when (popularMovieResponse) {
+                    is ResponseHelper.Success -> {
+                        homeAdapter.updateDataItem(
+                            0,
+                            popularMovieResponse.data ?: emptyList(),
+                            Status.SUCCESS
+                        )
+                    }
 
-    private suspend fun getTopRatedMovies(): List<Movie> {
-        return withContext(Dispatchers.IO) {
-            movieRepository.getTopRatedMovies()
-        } ?: emptyList()
-    }
+                    is ResponseHelper.Loading -> {
+                        homeAdapter.updateDataItem(0, emptyList(), Status.LOADING)
 
-    private suspend fun getNowPlayingMovies(): List<Movie> {
-        return withContext(Dispatchers.IO) {
-            movieRepository.getNowPlayingMovies()
-        } ?: emptyList()
-    }
+                    }
 
-    private suspend fun getPopularMovies(): List<Movie> {
-        return withContext(Dispatchers.IO) {
-            movieRepository.getPopularMovies()
-        } ?: emptyList()
-    }
+                    is ResponseHelper.Error -> {
+                        homeAdapter.updateDataItem(0, emptyList(), Status.ERROR)
 
-    // properly written coroutine
-    private suspend fun getUpcomingMovies(): List<Movie> {
-        return withContext(Dispatchers.IO) {
-            movieRepository.getUpcomingMovies()
-        } ?: emptyList()
-    }
-
-    private suspend fun getMovieDetail(id: Int): MovieDetails? {
-        return movieRepository.getMovieDetail(id)
-    }
-
-
-    private fun navigateToMovieDetails(id: Int) {
-        val targetFragment = MovieDetailsFragment()
-        lifecycleScope.launch {
-            val movieDetail = getMovieDetail(id)
-            movieDetail?.let {
-                val bundle = Bundle().apply {
-                    putParcelable("movieDetail", it)
+                    }
                 }
-                targetFragment.arguments = bundle
 
-                parentFragmentManager.performFragmentTransaction(
-                    R.id.home_container,
-                    targetFragment,
-                    FragmentHelper.REPLACE,
-                    true
-                )
+            }
+
+            homeViewModel.topRatedMovies.observe(viewLifecycleOwner) { topRatedMovieResponse ->
+//                homeAdapter.submitData(HomeModel("Top Rated", topRatedMovieList))
+                when (topRatedMovieResponse) {
+                    is ResponseHelper.Success -> {
+                        homeAdapter.updateDataItem(1, topRatedMovieResponse.data ?: emptyList(), Status.SUCCESS
+                        )
+                    }
+
+                    is ResponseHelper.Loading -> {
+                        homeAdapter.updateDataItem(1, emptyList(), Status.LOADING)
+                    }
+
+                    is ResponseHelper.Error -> {
+                        homeAdapter.updateDataItem(1, emptyList(), Status.ERROR)
+                    }
+                }
+            }
+
+            homeViewModel.upcomingMovies.observe(viewLifecycleOwner) { upcomingMovieResponse ->
+//                homeAdapter.submitData(HomeModel("Upcoming", upcomingMovieList))
+                when (upcomingMovieResponse) {
+                    is ResponseHelper.Success -> {
+                        homeAdapter.updateDataItem(
+                            2,
+                            upcomingMovieResponse.data ?: emptyList(),
+                            Status.SUCCESS
+                        )
+                    }
+
+                    is ResponseHelper.Loading -> {
+                        homeAdapter.updateDataItem(2, emptyList(), Status.LOADING)
+                    }
+
+                    is ResponseHelper.Error -> {
+                        homeAdapter.updateDataItem(2, emptyList(), Status.ERROR)
+                    }
+                }
+
+            }
+
+            homeViewModel.nowPlayingMovies.observe(viewLifecycleOwner) { nowPlayingMovieResponse ->
+//                homeAdapter.submitData(HomeModel("Now Playing", nowPlayingMovieList))
+                when (nowPlayingMovieResponse) {
+                    is ResponseHelper.Success -> {
+                        homeAdapter.updateDataItem(
+                            3,
+                            nowPlayingMovieResponse.data ?: emptyList(),
+                            Status.SUCCESS
+                        )
+                    }
+
+                    is ResponseHelper.Loading -> {
+                        homeAdapter.updateDataItem(3, emptyList(), Status.LOADING)
+
+                    }
+
+                    is ResponseHelper.Error -> {
+                        homeAdapter.updateDataItem(3, emptyList(), Status.ERROR)
+                    }
+                }
             }
         }
     }
+
+    /*  private fun navigateToMovieDetails(id: Int) {
+          val targetFragment = MovieDetailsFragment()
+          lifecycleScope.launch {
+              val movieDetail = getMovieDetail(id)
+              movieDetail?.let {
+                  val bundle = Bundle().apply {
+                      putParcelable("movieDetail", it)
+                  }
+                  targetFragment.arguments = bundle
+
+                  parentFragmentManager.performFragmentTransaction(
+                      R.id.home_container,
+                      targetFragment,
+                      FragmentHelper.REPLACE,
+                      true
+                  )
+              }
+          }
+      }
+  */
+    private fun navigateToMovieDetails(id: Int) {
+        val targetFragment = MovieDetailsFragment()
+        val bundle = Bundle().apply {
+            putInt("movieId", id)
+        }
+        targetFragment.arguments = bundle
+        parentFragmentManager.performFragmentTransaction(
+            R.id.home_container,
+            targetFragment,
+            FragmentHelper.REPLACE,
+            true
+        )
+    }
 }
 
+
+//            // Update the adapter here with the fetched data
+//            val data = listOf(
+//                HomeModel("Now Playing", homeViewModel.nowPlayingMovies.value),
+//                HomeModel("Top Rated", homeViewModel.topRatedMovies.value),
+//                HomeModel("Upcoming", homeViewModel.upcomingMovies.value),
+//                HomeModel("Popular", homeViewModel.popularMovies.value)
+//            )
+//            homeAdapter.submitList(data)
+//            homeViewModel.updateAllMovieCategories()
 
 

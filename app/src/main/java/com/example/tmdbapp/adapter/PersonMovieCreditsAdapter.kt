@@ -8,7 +8,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
-import com.example.tmdbapp.R
+import com.example.tmdbapp.databinding.RvItemPersonMoviecreditsBinding
 import com.example.tmdbapp.helper.NetworkHelper
 import com.example.tmdbapp.model.people.Cast
 
@@ -17,20 +17,22 @@ class PersonMovieCreditsAdapter(private val itemOnClick: (Cast) -> Unit) :
 
     private var movieCredits: MutableList<Cast> = emptyList<Cast>().toMutableList()
 
+    private lateinit var binding : RvItemPersonMoviecreditsBinding
+
     inner class PersonMovieCreditsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val movieImageView: ImageView = itemView.findViewById(R.id.rv_item_person_moviePoster)
-        val movieNameTextView: TextView = itemView.findViewById(R.id.rv_item_person_movieName)
-        val movieRoleTextView: TextView = itemView.findViewById(R.id.rv_item_person_movieRole)
+
+        val movieImageView: ImageView = binding.rvItemPersonMoviePoster
+        val movieNameTextView: TextView = binding.rvItemPersonMovieName
+        val movieRoleTextView: TextView = binding.rvItemPersonMovieRole
     }
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
     ): PersonMovieCreditsViewHolder {
-        return PersonMovieCreditsViewHolder(
-            LayoutInflater.from(parent.context)
-                .inflate(R.layout.rv_item_person_moviecredits, parent, false)
-        )
+        val inflater = LayoutInflater.from(parent.context)
+        binding = RvItemPersonMoviecreditsBinding.inflate(inflater,parent,false)
+        return PersonMovieCreditsViewHolder(binding.root)
     }
 
     override fun onBindViewHolder(holder: PersonMovieCreditsViewHolder, position: Int) {

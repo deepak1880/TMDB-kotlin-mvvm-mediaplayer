@@ -1,62 +1,120 @@
 package com.example.tmdbapp.home
 
+import android.content.IntentFilter
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tmdbapp.R
 import com.example.tmdbapp.adapter.TrailerAndMoreAdapter
+import com.example.tmdbapp.databinding.FragmentTrailersBinding
+import com.example.tmdbapp.error.OfflineFragment
+import com.example.tmdbapp.extensions.FragmentHelper
+import com.example.tmdbapp.extensions.performFragmentTransaction
 import com.example.tmdbapp.helper.ItemMarginDecorationHelper
-import com.example.tmdbapp.repository.MovieRepositoryImpl
-import kotlinx.coroutines.Dispatchers
+import com.example.tmdbapp.helper.ResponseHelper
+import com.example.tmdbapp.receivers.ConnectivityReceiver
+import com.example.tmdbapp.viewmodel.MovieDetailViewModel
+import com.example.tmdbapp.viewmodel.MovieDetailViewModelFactory
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class TrailersAndMoreFragment : Fragment() {
 
-    val movieRepository = MovieRepositoryImpl()
-    var movieId : Int? = null
+    private var movieId: Int = -1
 
     lateinit var recyclerView: RecyclerView
-    val trailerAndMoreAdapter = TrailerAndMoreAdapter()
+
+    private val trailerAndMoreAdapter = TrailerAndMoreAdapter()
+
+    private lateinit var connectivityReceiver: ConnectivityReceiver
+
+    private lateinit var binding: FragmentTrailersBinding
+
+    lateinit var movieDetailsViewModel: MovieDetailViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        movieId=arguments?.getInt("movie id")
+        arguments?.let {
+            movieId = it.getInt("movie_id")
+        }
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_trailers, container, false)
+    ): View {
+        binding = FragmentTrailersBinding.inflate(layoutInflater)
+        val view = binding.root
+
+        // Internet check
+        connectivityReceiver = ConnectivityReceiver { isConnected ->
+            if (!isConnected) {
+                parentFragmentManager.performFragmentTransaction(
+                    R.id.home_container,
+                    OfflineFragment(),
+                    FragmentHelper.REPLACE
+                )
+            }
+        }
+
+        //Recycler view
         val verticalItemMarginDecoration =
             ItemMarginDecorationHelper.VerticalItemMarginDecoration(10)
-        recyclerView = view.findViewById(R.id.trailer_rv_videos)
+        recyclerView = binding.trailerRvVideos
         recyclerView.adapter = trailerAndMoreAdapter
-        recyclerView.layoutManager = LinearLayoutManager(context,LinearLayoutManager.VERTICAL,false)
+        recyclerView.layoutManager =
+            LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         recyclerView.addItemDecoration(verticalItemMarginDecoration)
+
         return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        movieId?.let { getMovieVideos(it) }
+        movieDetailsViewModel = ViewModelProvider(
+            this,
+            MovieDetailViewModelFactory(movieId)
+        )[MovieDetailViewModel::class.java]
+
+        // update the UI
+        updateUiWithData()
     }
 
+    override fun onResume() {
+        super.onResume()
+        val filter = IntentFilter("android.net.conn.CONNECTIVITY_CHANGE")
+        requireActivity().registerReceiver(connectivityReceiver, filter)
+    }
 
-    private fun getMovieVideos(id : Int) {
+    override fun onDestroyView() {
+        super.onDestroyView()
+        requireActivity().unregisterReceiver(connectivityReceiver)
+    }
+
+    private fun updateUiWithData() {
         lifecycleScope.launch {
-            val movieCredits = withContext(Dispatchers.IO) {
-                movieRepository.getMovieVideos(id)
-            }
-            movieCredits?.let {
-                trailerAndMoreAdapter.submitList(movieCredits)
+            movieDetailsViewModel.movieVideos.observe(viewLifecycleOwner) { movieVideoResponse ->
+                when (movieVideoResponse) {
+                    is ResponseHelper.Success -> {
+                        Log.d("video data from api",movieVideoResponse.data.toString())
+                        trailerAndMoreAdapter.submitList(movieVideoResponse.data ?: emptyList())
+                    }
+
+                    is ResponseHelper.Error -> {
+
+                    }
+
+                    is ResponseHelper.Loading -> {
+
+                    }
+                }
             }
         }
     }
-
 }

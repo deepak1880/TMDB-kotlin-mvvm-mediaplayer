@@ -5,7 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.tmdbapp.R
+import com.example.tmdbapp.databinding.RvItemTrailersVideosBinding
 import com.example.tmdbapp.model.videos.Video
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
@@ -14,11 +14,14 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTube
 class TrailerAndMoreAdapter() : RecyclerView.Adapter<TrailerAndMoreAdapter.TrailerViewHolder>() {
     var videos: List<Video> = emptyList()
 
+    private lateinit var binding : RvItemTrailersVideosBinding
+
+
     inner class TrailerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val youtubePlayerView: YouTubePlayerView =
-            itemView.findViewById(R.id.rv_item_trailers_videoPlayer)
+            binding.rvItemTrailersVideoPlayer
         private var youtubePlayer: YouTubePlayer? = null
-        val videoTitle : TextView = itemView.findViewById(R.id.rv_item_trailers_videoName)
+        val videoTitle : TextView = binding.rvItemTrailersVideoName
 
         init {
             youtubePlayerView.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
@@ -45,10 +48,9 @@ class TrailerAndMoreAdapter() : RecyclerView.Adapter<TrailerAndMoreAdapter.Trail
         parent: ViewGroup,
         viewType: Int
     ): TrailerAndMoreAdapter.TrailerViewHolder {
-        return TrailerViewHolder(
-            LayoutInflater.from(parent.context)
-                .inflate(R.layout.rv_item_trailers_videos, parent, false)
-        )
+        val inflater = LayoutInflater.from(parent.context)
+        binding = RvItemTrailersVideosBinding.inflate(inflater,parent,false)
+        return TrailerViewHolder(binding.root)
     }
 
     override fun getItemCount(): Int {

@@ -8,7 +8,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
-import com.example.tmdbapp.R
+import com.example.tmdbapp.databinding.RvItemDetailCastBinding
 import com.example.tmdbapp.helper.NetworkHelper
 import com.example.tmdbapp.model.people.Cast
 
@@ -17,16 +17,18 @@ class CastAdapter(private val itemOnClick: (Cast) -> Unit) :
     RecyclerView.Adapter<CastAdapter.CastViewHolder>() {
     private var cast : MutableList<Cast> = emptyList<Cast>().toMutableList()
 
+    private lateinit var binding : RvItemDetailCastBinding
+
     inner class CastViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val castImageView: ImageView = itemView.findViewById(R.id.rv_item_detail_personImage)
-        val castNameTextView: TextView = itemView.findViewById(R.id.rv_item_detail_personName)
-        val castRoleTextView: TextView = itemView.findViewById(R.id.rv_item_detail_personRole)
+        val castImageView: ImageView = binding.rvItemDetailPersonImage
+        val castNameTextView: TextView = binding.rvItemDetailPersonName
+        val castRoleTextView: TextView = binding.rvItemDetailPersonRole
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CastViewHolder {
-        return CastViewHolder(
-            LayoutInflater.from(parent.context).inflate(R.layout.rv_item_detail_cast, parent, false)
-        )
+        val inflater = LayoutInflater.from(parent.context)
+        binding = RvItemDetailCastBinding.inflate(inflater,parent,false)
+        return CastViewHolder(binding.root)
     }
 
     override fun getItemCount(): Int {

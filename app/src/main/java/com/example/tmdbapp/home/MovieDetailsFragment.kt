@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -15,22 +16,24 @@ import coil.load
 import com.example.tmdbapp.R
 import com.example.tmdbapp.adapter.CastAdapter
 import com.example.tmdbapp.adapter.MovieDetailsViewPagerAdapter
+import com.example.tmdbapp.databinding.FragmentMovieDetailsBinding
 import com.example.tmdbapp.extensions.FragmentHelper
+import com.example.tmdbapp.extensions.gone
 import com.example.tmdbapp.extensions.performFragmentTransaction
+import com.example.tmdbapp.extensions.visible
 import com.example.tmdbapp.helper.ItemMarginDecorationHelper
 import com.example.tmdbapp.helper.NetworkHelper
+import com.example.tmdbapp.helper.ResponseHelper
 import com.example.tmdbapp.model.MovieDetails
-import com.example.tmdbapp.repository.MovieRepositoryImpl
+import com.example.tmdbapp.receivers.ConnectivityReceiver
+import com.example.tmdbapp.viewmodel.MovieDetailViewModel
+import com.example.tmdbapp.viewmodel.MovieDetailViewModelFactory
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class MovieDetailsFragment : Fragment() {
-
-    private val movieRepository = MovieRepositoryImpl()
-    var movieDetails: MovieDetails? = null
+    var movieId: Int = -1
 
     private lateinit var recyclerViewCast: RecyclerView
     private lateinit var castAdapter: CastAdapter
@@ -43,36 +46,95 @@ class MovieDetailsFragment : Fragment() {
     private lateinit var viewPager: ViewPager2
     lateinit var viewPagerAdapter: MovieDetailsViewPagerAdapter
 
+    private lateinit var connectivityReceiver: ConnectivityReceiver
+
+    private lateinit var binding: FragmentMovieDetailsBinding
+
+    lateinit var movieDetailsViewModel: MovieDetailViewModel
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        movieDetails = arguments?.getParcelable("movieDetail")
+        arguments?.let {
+            movieId = it.getInt("movieId")
+        }
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_movie_details, container, false)
-        movieCover = view.findViewById(R.id.detail_image_cover)
-        movieTitle = view.findViewById(R.id.detail_tv_title)
-        movieTag = view.findViewById(R.id.detail_tv_tagline)
-        movieOverviewBody = view.findViewById(R.id.detail_tv_overviewBody)
-        recyclerViewCast = view.findViewById(R.id.detail_rv_castBody)
 
-        viewPager = view.findViewById(R.id.detail_viewPager)
-        tabLayout = view.findViewById(R.id.detail_tabLayout)
+
+        /*connectivityReceiver = ConnectivityReceiver { isConnected ->
+            if (!isConnected) {
+                parentFragmentManager.performFragmentTransaction(
+                    R.id.home_container,
+                    OfflineFragment(),
+                    FragmentHelper.REPLACE
+                )
+            }
+        }*/
+
+        movieDetailsViewModel =
+            ViewModelProvider(
+                this,
+                MovieDetailViewModelFactory(movieId)
+            )[MovieDetailViewModel::class.java]
+
+        binding = FragmentMovieDetailsBinding.inflate(layoutInflater)
+        val view = binding.root
+        movieCover = binding.detailImageCover
+        movieTitle = binding.detailTvTitle
+        movieTag = binding.detailTvTagline
+        movieOverviewBody = binding.detailTvOverviewBody
+        recyclerViewCast = binding.detailRvCastBody
+
+        viewPager = binding.detailViewPager
+        tabLayout = binding.detailTabLayout
 
         return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        updateUI()
+        lifecycleScope.launch {
+            movieDetailsViewModel.movieDetail.observe(viewLifecycleOwner) { movieDetails ->
+                when (movieDetails) {
+                    is ResponseHelper.Success -> {
+                        updateUI(movieDetails.data!!)
+                        binding.topMovieDetailsGroup.visible()
+                        binding.detailImageCover.visible()
+                        binding.shimmerMovieDetailContainer.stopShimmer()
+                        binding.shimmerMovieDetailContainer.gone()
+                    }
+
+                    is ResponseHelper.Error -> {
+                    }
+
+                    is ResponseHelper.Loading -> {
+                        binding.movieDetailCard.gone()
+                        binding.detailImageCover.gone()
+
+                        binding.shimmerMovieDetailContainer.gone()
+                        //binding.shimmerMovieDetailContainer.startShimmer()
+                    }
+                }
+            }
+        }
     }
 
-    private fun updateUI() {
-        val itemMarginDecoration = ItemMarginDecorationHelper.HorizontalItemMarginDecoration(20)
+    override fun onResume() {
+        super.onResume()
+        /*val filter = IntentFilter("android.net.conn.CONNECTIVITY_CHANGE")
+        requireActivity().registerReceiver(connectivityReceiver, filter)*/
+    }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        /* requireActivity().unregisterReceiver(connectivityReceiver)*/
+    }
+
+    private fun updateUI(movieDetails: MovieDetails) {
         // backdrop
         movieCover.load(NetworkHelper.IMAGE_BASE_URL + movieDetails?.backdrop_path)
         // movie title + release year (extracted year from release data)
@@ -85,7 +147,7 @@ class MovieDetailsFragment : Fragment() {
         // overview body
         movieOverviewBody.text = movieDetails?.overview
         // recycler view for cast
-
+        val itemMarginDecoration = ItemMarginDecorationHelper.HorizontalItemMarginDecoration(20)
         recyclerViewCast.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         castAdapter = CastAdapter {
@@ -95,15 +157,13 @@ class MovieDetailsFragment : Fragment() {
         recyclerViewCast.addItemDecoration(itemMarginDecoration)
 
         //update the cast recycler view and update tab layout
-        movieDetails?.let {
-            getCast(it.id)
-            updateViewPagerData(it.id)
-        }
+        updateCastList()
+        updateViewPagerData(movieDetails.id)
 
     }
 
-    private fun updateViewPagerData(id : Int) {
-        viewPagerAdapter = MovieDetailsViewPagerAdapter(childFragmentManager, lifecycle,id)
+    private fun updateViewPagerData(id: Int) {
+        viewPagerAdapter = MovieDetailsViewPagerAdapter(childFragmentManager, lifecycle, id)
         viewPager.adapter = viewPagerAdapter
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             when (position) {
@@ -119,22 +179,29 @@ class MovieDetailsFragment : Fragment() {
             putInt("person_id", id)
         }
         targetFragment.arguments = bundle
-
         parentFragmentManager.performFragmentTransaction(
             R.id.home_container, targetFragment, FragmentHelper.REPLACE, true
         )
     }
 
-
-    private fun getCast(id: Int) {
+    private fun updateCastList() {
         lifecycleScope.launch {
-            val castList = withContext(Dispatchers.IO) {
-                movieRepository.getCast(id)
-            }
-            castList?.let {
-                castAdapter.submitList(it)
+            movieDetailsViewModel.castList.observe(viewLifecycleOwner) { castListResponse ->
+                when (castListResponse) {
+                    is ResponseHelper.Success -> {
+                        castAdapter.submitList(castListResponse.data ?: emptyList())
+                        binding.shimmerRvCastContainer.gone()
+                    }
+
+                    is ResponseHelper.Error -> {
+
+                    }
+
+                    is ResponseHelper.Loading -> {
+                        binding.shimmerRvCastContainer.visible()
+                    }
+                }
             }
         }
     }
-
 }

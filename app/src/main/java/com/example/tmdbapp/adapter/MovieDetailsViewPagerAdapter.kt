@@ -25,7 +25,7 @@ class MovieDetailsViewPagerAdapter(
 
             else -> SimilarMoviesFragment()
         }.apply {
-            arguments = Bundle().apply { putInt("movie id", movieIdParam) }
+            arguments = Bundle().apply { putInt("movie_id", movieIdParam) }
         }
     }
 }

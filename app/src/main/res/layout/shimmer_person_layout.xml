@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".home.PersonFragment">
+    android:layout_height="match_parent">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -19,69 +18,66 @@
                 android:id="@+id/person_image_profilePic"
                 android:layout_width="match_parent"
                 android:layout_height="600dp"
+                android:background="@color/shimmer_background"
                 android:scaleType="fitXY"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/person_tv_personName"
-                android:layout_width="wrap_content"
+                android:layout_width="100dp"
                 android:layout_height="wrap_content"
-                android:textColor="@color/white"
-                android:textSize="30sp"
-                android:textStyle="bold"
+                android:layout_marginTop="5dp"
+                android:background="@color/shimmer_background"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/person_image_profilePic" />
 
             <TextView
                 android:id="@+id/person_tv_dateOfBirth"
-                android:layout_width="wrap_content"
+                android:layout_width="150dp"
                 android:layout_height="wrap_content"
-                android:textColor="@color/white"
+                android:layout_marginTop="5dp"
+                android:background="@color/shimmer_background"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/person_tv_personName" />
 
             <TextView
                 android:id="@+id/person_tv_placeOfBirth"
-                android:layout_width="wrap_content"
+                android:layout_width="100dp"
                 android:layout_height="wrap_content"
-                android:textColor="@color/white"
+                android:layout_marginTop="5dp"
+                android:background="@color/shimmer_background"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/person_tv_dateOfBirth" />
 
-
             <TextView
                 android:id="@+id/person_tv_personRole"
-                android:layout_width="wrap_content"
+                android:layout_width="150dp"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:background="@color/shimmer_background"
                 android:textAlignment="center"
-                android:textColor="@color/white"
-                android:textSize="20sp"
-                android:textStyle="italic"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/person_tv_placeOfBirth" />
-
 
             <TextView
                 android:id="@+id/person_tv_biography"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:justificationMode="inter_word"
-                android:textColor="@color/white"
+                android:layout_marginTop="5dp"
+                android:background="@color/shimmer_background"
                 app:layout_constraintTop_toBottomOf="@id/person_tv_personRole" />
 
             <TextView
                 android:id="@+id/person_tv_knownFor"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/person_text_knownFor"
-                android:textColor="@color/white"
-                android:textSize="25sp"
-                android:textStyle="bold"
+                android:layout_marginTop="5dp"
+                android:background="@color/shimmer_background"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/person_tv_biography" />
@@ -92,46 +88,6 @@
                 android:layout_height="wrap_content"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/person_tv_knownFor" />
-
-
-            <com.facebook.shimmer.ShimmerFrameLayout
-                android:id="@+id/shimmer_view_container"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:layout_marginTop="15dp"
-                android:orientation="vertical"
-                app:shimmer_duration="800">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <include
-                        android:id="@+id/main_layout"
-                        layout="@layout/shimmer_person_layout" />
-                </LinearLayout>
-            </com.facebook.shimmer.ShimmerFrameLayout>
-
-            <com.facebook.shimmer.ShimmerFrameLayout
-                android:id="@+id/shimmer_rv_container"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:layout_marginTop="15dp"
-                android:orientation="vertical"
-                app:shimmer_duration="800"
-                app:layout_constraintTop_toBottomOf="@id/person_tv_knownFor">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <include layout="@layout/shimmer_rv_item_person_moviecredits" />
-                <include layout="@layout/shimmer_rv_item_person_moviecredits" />
-                <include layout="@layout/shimmer_rv_item_person_moviecredits" />
-            </LinearLayout>
-        </com.facebook.shimmer.ShimmerFrameLayout>
-
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

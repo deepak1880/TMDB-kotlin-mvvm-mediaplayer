@@ -1,7 +1,7 @@
 package com.example.tmdbapp.repository
 
-import android.util.Log
 import com.example.tmdbapp.helper.NetworkHelper
+import com.example.tmdbapp.helper.ResponseHelper
 import com.example.tmdbapp.model.Movie
 import com.example.tmdbapp.model.MovieDetails
 import com.example.tmdbapp.model.people.Cast
@@ -9,126 +9,118 @@ import com.example.tmdbapp.model.videos.Video
 import com.example.tmdbapp.service.MovieService
 
 class MovieRepositoryImpl : MovieRepository {
-
-    private val TAG = "Movie Repository"
     private val movieService: MovieService = NetworkHelper.movieService
 
-    override suspend fun getTopRatedMovies(): List<Movie>? {
-        try {
+    override suspend fun getTopRatedMovies(): ResponseHelper<List<Movie>> {
+        return try {
             val response = movieService.getTopRatedMovies()
             if (response.isSuccessful) {
                 val responseBody = response.body()
-                return responseBody?.movies ?: emptyList()
+                ResponseHelper.Success(responseBody?.movies)
             } else {
-                throw Exception("Failed to fetch top rated movies")
+                ResponseHelper.Error("Failed to fetch top rated movies")
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            ResponseHelper.Error(e.message.toString())
         }
-        return null
     }
 
-    override suspend fun getNowPlayingMovies(): List<Movie>? {
-        try {
+    override suspend fun getNowPlayingMovies(): ResponseHelper<List<Movie>>  {
+        return try {
             val response = movieService.getNowPlayingMovies()
             if (response.isSuccessful) {
                 val responseBody = response.body()
-                return responseBody?.movies ?: emptyList()
-
+                ResponseHelper.Success(responseBody?.movies)
             } else {
-                throw Exception("Failed to fetch now playing movies")
+                ResponseHelper.Error("Failed to fetch now playing movies")
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            ResponseHelper.Error(e.message.toString())
         }
-        return null
     }
 
-    override suspend fun getPopularMovies(): List<Movie>? {
-        try {
+    override suspend fun getPopularMovies(): ResponseHelper<List<Movie>> {
+        return try {
             val response = movieService.getPopularMovies()
             if (response.isSuccessful) {
                 val responseBody = response.body()
-                return responseBody?.movies ?: emptyList()
+                ResponseHelper.Success(responseBody?.movies)
             } else {
-                throw Exception("Failed to fetch popular movies")
+                ResponseHelper.Error("Failed to fetch popular movies")
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            ResponseHelper.Error(e.message.toString())
         }
-        return null
     }
 
-    override suspend fun getUpcomingMovies(): List<Movie>? {
-        try {
+    override suspend fun getUpcomingMovies(): ResponseHelper<List<Movie>> {
+        return try {
             val response = movieService.getUpcomingMovies()
             if (response.isSuccessful) {
                 val responseBody = response.body()
-                return responseBody?.movies ?: emptyList()
-
+                ResponseHelper.Success(responseBody?.movies)
             } else {
-                throw Exception("Failed to fetch upcoming movies")
+                ResponseHelper.Error("Failed to fetch upcoming movies")
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error fetching upcoming movies", e)
+            ResponseHelper.Error(e.message.toString())
         }
-        return null
     }
 
-    override suspend fun getMovieDetail(id: Int): MovieDetails? {
-        try {
+    override suspend fun getMovieDetail(id: Int): ResponseHelper<MovieDetails> {
+        return try {
             val response = movieService.getMovieDetail(id)
             if (response.isSuccessful) {
-                return response.body()
+                val responseBody = response.body()
+                ResponseHelper.Success(responseBody)
             } else {
-                throw Exception("Failed to fetch movies details")
+                ResponseHelper.Error("Failed to fetch popular movies")
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            ResponseHelper.Error(e.message.toString())
         }
-        return null
     }
 
-    override suspend fun getCast(id: Int): List<Cast>? {
+    override suspend fun getCast(id: Int): ResponseHelper<List<Cast>> {
 
-        try {
+        return try {
             val response = movieService.getMovieCredits(id)
             if (response.isSuccessful) {
                 val responseBody = response.body()
-                return responseBody?.cast
+                ResponseHelper.Success(responseBody?.cast)
             } else {
-                throw Exception("Failed to fetch movie's cast")
+                ResponseHelper.Error("Failed to fetch popular movies")
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            ResponseHelper.Error(e.message.toString())
         }
-        return null
     }
 
-    override suspend fun getSimilarMovies(id: Int): List<Movie>? {
-        try {
+    override suspend fun getSimilarMovies(id: Int): ResponseHelper<List<Movie>> {
+        return try {
             val response = movieService.getSimilarMovies(id)
             if (response.isSuccessful) {
-                return response.body()?.movies
+                val responseBody = response.body()
+                ResponseHelper.Success(responseBody?.movies)
             } else {
-                throw Exception("Failed to fetch similar movies")
+                ResponseHelper.Error("Failed to fetch popular movies")
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            ResponseHelper.Error(e.message.toString())
         }
-        return null
     }
 
-    override suspend fun getMovieVideos(id: Int): List<Video>? {
-        try {
+    override suspend fun getMovieVideos(id: Int): ResponseHelper<List<Video>> {
+        return try {
             val response = movieService.getMovieVideos(id)
             if (response.isSuccessful) {
-                return response.body()?.videoList
+                val responseBody = response.body()
+                ResponseHelper.Success(responseBody?.videoList)
             } else {
-                throw Exception("Failed to fetch similar movies")
+                ResponseHelper.Error("Failed to fetch popular movies")
             }
         } catch (e: Exception) {
-            throw Exception("Failed to fetch videos")
+            ResponseHelper.Error(e.message.toString())
         }
     }
 }
