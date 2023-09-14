@@ -1,5 +1,6 @@
 package com.example.tmdbapp.home
 
+import android.content.IntentFilter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -19,6 +20,7 @@ import com.example.tmdbapp.adapter.MovieDetailsViewPagerAdapter
 import com.example.tmdbapp.databinding.FragmentMovieDetailsBinding
 import com.example.tmdbapp.extensions.FragmentHelper
 import com.example.tmdbapp.extensions.gone
+import com.example.tmdbapp.extensions.noInternetSnackbar
 import com.example.tmdbapp.extensions.performFragmentTransaction
 import com.example.tmdbapp.extensions.visible
 import com.example.tmdbapp.helper.ItemMarginDecorationHelper
@@ -55,7 +57,6 @@ class MovieDetailsFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         arguments?.let {
             movieId = it.getInt("movieId")
         }
@@ -64,17 +65,6 @@ class MovieDetailsFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
-
-
-        /*connectivityReceiver = ConnectivityReceiver { isConnected ->
-            if (!isConnected) {
-                parentFragmentManager.performFragmentTransaction(
-                    R.id.home_container,
-                    OfflineFragment(),
-                    FragmentHelper.REPLACE
-                )
-            }
-        }*/
 
         movieDetailsViewModel =
             ViewModelProvider(
@@ -97,6 +87,15 @@ class MovieDetailsFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
+        connectivityReceiver = ConnectivityReceiver { isConnected ->
+            if (!isConnected) {
+                requireContext().noInternetSnackbar(view, requireContext()) {
+                    loadData()
+                }
+            }
+        }
+
         lifecycleScope.launch {
             movieDetailsViewModel.movieDetail.observe(viewLifecycleOwner) { movieDetails ->
                 when (movieDetails) {
@@ -125,13 +124,13 @@ class MovieDetailsFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        /*val filter = IntentFilter("android.net.conn.CONNECTIVITY_CHANGE")
-        requireActivity().registerReceiver(connectivityReceiver, filter)*/
+        val filter = IntentFilter("android.net.conn.CONNECTIVITY_CHANGE")
+        requireActivity().registerReceiver(connectivityReceiver, filter)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        /* requireActivity().unregisterReceiver(connectivityReceiver)*/
+         requireActivity().unregisterReceiver(connectivityReceiver)
     }
 
     private fun updateUI(movieDetails: MovieDetails) {
@@ -204,4 +203,11 @@ class MovieDetailsFragment : Fragment() {
             }
         }
     }
+
+   fun loadData(){
+       movieDetailsViewModel.getMovieDetail(movieId)
+       movieDetailsViewModel.getSimilarMovies(movieId)
+       movieDetailsViewModel.getCast(movieId)
+   }
+
 }

@@ -16,8 +16,8 @@ import coil.load
 import com.example.tmdbapp.R
 import com.example.tmdbapp.adapter.PersonMovieCreditsAdapter
 import com.example.tmdbapp.databinding.FragmentPersonBinding
-import com.example.tmdbapp.error.OfflineFragment
 import com.example.tmdbapp.extensions.FragmentHelper
+import com.example.tmdbapp.extensions.noInternetSnackbar
 import com.example.tmdbapp.extensions.performFragmentTransaction
 import com.example.tmdbapp.helper.CalculationHelper.findAge
 import com.example.tmdbapp.helper.ItemMarginDecorationHelper
@@ -64,15 +64,7 @@ class PersonFragment : Fragment() {
         binding = FragmentPersonBinding.inflate(layoutInflater)
         val view = binding.root
 
-        connectivityReceiver = ConnectivityReceiver { isConnected ->
-            if (!isConnected) {
-                parentFragmentManager.performFragmentTransaction(
-                    R.id.home_container,
-                    OfflineFragment(),
-                    FragmentHelper.REPLACE
-                )
-            }
-        }
+
 
         profilePic = binding.personImageProfilePic
         personName = binding.personTvPersonName
@@ -87,6 +79,16 @@ class PersonFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        connectivityReceiver = ConnectivityReceiver { isConnected ->
+            if (!isConnected) {
+                requireContext().noInternetSnackbar(view, requireContext()) {
+                    loadData()
+                }
+            }
+        }
+
+
         personViewModel =
             ViewModelProvider(this, PersonViewModelFactory(personId))[PersonViewModel::class.java]
 
@@ -106,6 +108,11 @@ class PersonFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun loadData() {
+        personViewModel.getPersonDetail(personId)
+        personViewModel.getMovieCredits(personId)
     }
 
     override fun onResume() {

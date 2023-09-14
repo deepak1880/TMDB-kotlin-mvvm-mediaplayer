@@ -1,6 +1,5 @@
 package com.example.tmdbapp.home
 
-import android.content.IntentFilter
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,12 +10,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.tmdbapp.R
 import com.example.tmdbapp.adapter.TrailerAndMoreAdapter
 import com.example.tmdbapp.databinding.FragmentTrailersBinding
-import com.example.tmdbapp.error.OfflineFragment
-import com.example.tmdbapp.extensions.FragmentHelper
-import com.example.tmdbapp.extensions.performFragmentTransaction
 import com.example.tmdbapp.helper.ItemMarginDecorationHelper
 import com.example.tmdbapp.helper.ResponseHelper
 import com.example.tmdbapp.receivers.ConnectivityReceiver
@@ -52,16 +47,6 @@ class TrailersAndMoreFragment : Fragment() {
         binding = FragmentTrailersBinding.inflate(layoutInflater)
         val view = binding.root
 
-        // Internet check
-        connectivityReceiver = ConnectivityReceiver { isConnected ->
-            if (!isConnected) {
-                parentFragmentManager.performFragmentTransaction(
-                    R.id.home_container,
-                    OfflineFragment(),
-                    FragmentHelper.REPLACE
-                )
-            }
-        }
 
         //Recycler view
         val verticalItemMarginDecoration =
@@ -88,13 +73,13 @@ class TrailersAndMoreFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        val filter = IntentFilter("android.net.conn.CONNECTIVITY_CHANGE")
-        requireActivity().registerReceiver(connectivityReceiver, filter)
+       /* val filter = IntentFilter("android.net.conn.CONNECTIVITY_CHANGE")
+        requireActivity().registerReceiver(connectivityReceiver, filter)*/
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        requireActivity().unregisterReceiver(connectivityReceiver)
+//        requireActivity().unregisterReceiver(connectivityReceiver)
     }
 
     private fun updateUiWithData() {

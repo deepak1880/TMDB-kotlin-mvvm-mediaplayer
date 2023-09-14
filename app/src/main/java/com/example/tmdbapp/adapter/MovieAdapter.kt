@@ -7,7 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
-import coil.load
+import coil.ImageLoader
+import coil.request.ImageRequest
+import com.example.tmdbapp.R
 import com.example.tmdbapp.databinding.RvSubitemHomeSectionMovieBinding
 import com.example.tmdbapp.helper.NetworkHelper
 import com.example.tmdbapp.model.Movie
@@ -38,19 +40,18 @@ class MovieAdapter(val itemOnClick: (Movie) -> Unit) :
     override fun onBindViewHolder(holder: MovieViewHolder, position: Int) {
 
 
-        holder.imageView.load(NetworkHelper.IMAGE_BASE_URL + movies[position].posterPath)
+    //  holder.imageView.load(NetworkHelper.IMAGE_BASE_URL + movies[position].posterPath)
 
-//        val imageLoader = ImageLoader.Builder(context)
-//            .build()
-//
-//        val imageRequest = ImageRequest.Builder(context)
-//            .data(
-//                NetworkHelper.IMAGE_BASE_URL + movies[position].posterPath)
-//            .placeholder(R.drawable.placeholder_image)
-//            .target(holder.imageView)
-//            .build()
-//
-//        imageLoader.enqueue(imageRequest)
+        val imageLoader = ImageLoader.Builder(context)
+            .build()
+
+        val imageRequest = ImageRequest.Builder(context)
+            .data(
+                NetworkHelper.IMAGE_BASE_URL + movies[position].posterPath)
+            .placeholder(R.drawable.placeholder_movies)
+            .target(holder.imageView)
+            .build()
+        imageLoader.enqueue(imageRequest)
 
         holder.itemView.setOnClickListener {
             itemOnClick.invoke(movies[position])

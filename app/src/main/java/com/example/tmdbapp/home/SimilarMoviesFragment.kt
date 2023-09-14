@@ -1,6 +1,5 @@
 package com.example.tmdbapp.home
 
-import android.content.IntentFilter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.tmdbapp.R
 import com.example.tmdbapp.adapter.MovieAdapter
 import com.example.tmdbapp.databinding.FragmentSimilarMoviesBinding
-import com.example.tmdbapp.error.OfflineFragment
 import com.example.tmdbapp.extensions.FragmentHelper
 import com.example.tmdbapp.extensions.performFragmentTransaction
 import com.example.tmdbapp.helper.ItemMarginDecorationHelper
@@ -49,15 +47,6 @@ class SimilarMoviesFragment : Fragment() {
         binding = FragmentSimilarMoviesBinding.inflate(layoutInflater)
         val view = binding.root
 
-        connectivityReceiver = ConnectivityReceiver { isConnected ->
-            if (!isConnected) {
-                parentFragmentManager.performFragmentTransaction(
-                    R.id.home_container,
-                    OfflineFragment(),
-                    FragmentHelper.REPLACE
-                )
-            }
-        }
 
         val commonItemMarginDecoration = ItemMarginDecorationHelper.GridItemMarginDecoration(10)
         recyclerView = binding.similarMoviesRvMovies
@@ -84,13 +73,13 @@ class SimilarMoviesFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        val filter = IntentFilter("android.net.conn.CONNECTIVITY_CHANGE")
-        requireActivity().registerReceiver(connectivityReceiver, filter)
+        /*val filter = IntentFilter("android.net.conn.CONNECTIVITY_CHANGE")
+        requireActivity().registerReceiver(connectivityReceiver, filter)*/
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        requireActivity().unregisterReceiver(connectivityReceiver)
+        /*requireActivity().unregisterReceiver(connectivityReceiver)*/
     }
 
     private fun updateUiWithData() {

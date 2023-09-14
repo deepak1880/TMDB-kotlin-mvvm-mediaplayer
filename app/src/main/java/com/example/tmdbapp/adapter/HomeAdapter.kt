@@ -17,7 +17,7 @@ import com.facebook.shimmer.ShimmerFrameLayout
 class HomeAdapter(private val onClick: (Movie) -> Unit) :
     RecyclerView.Adapter<HomeAdapter.HomeViewHolder>() {
     private var homeModelList = mutableListOf<HomeModel>(
-        HomeModel("Popular", emptyList(), Status.LOADING),//0
+        HomeModel("Popular", emptyList(), Status.LOADING),
         HomeModel("Top Rated", emptyList(),Status.LOADING),
         HomeModel("Upcoming", emptyList(),Status.LOADING),
         HomeModel("Now Playing", emptyList(),Status.LOADING)
