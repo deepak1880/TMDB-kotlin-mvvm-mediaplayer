@@ -12,7 +12,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import coil.load
+import coil.ImageLoader
+import coil.request.ImageRequest
 import com.example.tmdbapp.R
 import com.example.tmdbapp.adapter.PersonMovieCreditsAdapter
 import com.example.tmdbapp.databinding.FragmentPersonBinding
@@ -63,9 +64,6 @@ class PersonFragment : Fragment() {
 
         binding = FragmentPersonBinding.inflate(layoutInflater)
         val view = binding.root
-
-
-
         profilePic = binding.personImageProfilePic
         personName = binding.personTvPersonName
         personRole = binding.personTvPersonRole
@@ -128,7 +126,16 @@ class PersonFragment : Fragment() {
 
     private fun updateUiWithData(person: Person?) {
         person?.let {
-            profilePic.load("${IMAGE_BASE_URL}${person.profilePath}")
+            //profilePic.load("${IMAGE_BASE_URL}${person.profilePath}")
+            val imageLoader = ImageLoader.Builder(requireContext())
+                .build()
+            val imageRequest = ImageRequest.Builder(requireContext())
+                .data("${IMAGE_BASE_URL}${person.profilePath}")
+                .placeholder(R.drawable.placeholder_person)
+                .target(profilePic)
+                .build()
+            imageLoader.enqueue(imageRequest)
+
             personName.text = person.name
             personRole.text = person.knownForDepartment
             personBiography.text = person.biography

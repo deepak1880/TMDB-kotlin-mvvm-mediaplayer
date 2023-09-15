@@ -20,7 +20,7 @@ class MovieDetailViewModel(movieId: Int) : ViewModel() {
     private val _movieDetail = MutableLiveData<ResponseHelper<MovieDetails>>()
     val movieDetail: LiveData<ResponseHelper<MovieDetails>> get() = _movieDetail
 
-    private val _castList = MutableLiveData< ResponseHelper<List<Cast>>>()
+    private val _castList = MutableLiveData<ResponseHelper<List<Cast>>>()
     val castList: LiveData<ResponseHelper<List<Cast>>> get() = _castList
 
     private val _similarMovies = MutableLiveData<ResponseHelper<List<Movie>>>()
@@ -31,6 +31,7 @@ class MovieDetailViewModel(movieId: Int) : ViewModel() {
 
     fun getMovieDetail(movieId: Int) {
         viewModelScope.launch {
+            _movieDetail.postValue(ResponseHelper.Loading())
             val movieDetailResponse = withContext(Dispatchers.IO) {
                 movieRepository.getMovieDetail(movieId)
             }
@@ -40,6 +41,7 @@ class MovieDetailViewModel(movieId: Int) : ViewModel() {
 
     fun getCast(movieId: Int) {
         viewModelScope.launch {
+            _movieDetail.postValue(ResponseHelper.Loading())
             val castListResponse = withContext(Dispatchers.IO) {
                 movieRepository.getCast(movieId)
             }
@@ -49,6 +51,7 @@ class MovieDetailViewModel(movieId: Int) : ViewModel() {
 
     fun getSimilarMovies(movieId: Int) {
         viewModelScope.launch {
+            _movieDetail.postValue(ResponseHelper.Loading())
             val similarMoviesResponse = withContext(Dispatchers.IO) {
                 movieRepository.getSimilarMovies(movieId)
             }

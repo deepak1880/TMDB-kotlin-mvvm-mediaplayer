@@ -37,9 +37,6 @@ fun View.gone(){
 
 fun View.visible(){
     this.visibility=View.VISIBLE
-
-
-
 }
 
 fun Context.noInternetSnackbar(view: View,context:Context, loadData:()->Unit){

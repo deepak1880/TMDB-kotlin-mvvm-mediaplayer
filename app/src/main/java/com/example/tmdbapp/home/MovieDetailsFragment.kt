@@ -13,7 +13,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import coil.load
+import coil.ImageLoader
+import coil.request.ImageRequest
 import com.example.tmdbapp.R
 import com.example.tmdbapp.adapter.CastAdapter
 import com.example.tmdbapp.adapter.MovieDetailsViewPagerAdapter
@@ -101,8 +102,9 @@ class MovieDetailsFragment : Fragment() {
                 when (movieDetails) {
                     is ResponseHelper.Success -> {
                         updateUI(movieDetails.data!!)
-                        binding.topMovieDetailsGroup.visible()
+                        binding.movieDetailCard.visible()
                         binding.detailImageCover.visible()
+                        binding.detailTabLayout.visible()
                         binding.shimmerMovieDetailContainer.stopShimmer()
                         binding.shimmerMovieDetailContainer.gone()
                     }
@@ -113,9 +115,9 @@ class MovieDetailsFragment : Fragment() {
                     is ResponseHelper.Loading -> {
                         binding.movieDetailCard.gone()
                         binding.detailImageCover.gone()
-
-                        binding.shimmerMovieDetailContainer.gone()
-                        //binding.shimmerMovieDetailContainer.startShimmer()
+                        binding.detailTabLayout.gone()
+                        binding.shimmerMovieDetailContainer.visible()
+                        binding.shimmerMovieDetailContainer.startShimmer()
                     }
                 }
             }
@@ -130,12 +132,22 @@ class MovieDetailsFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-         requireActivity().unregisterReceiver(connectivityReceiver)
+        requireActivity().unregisterReceiver(connectivityReceiver)
     }
 
     private fun updateUI(movieDetails: MovieDetails) {
         // backdrop
-        movieCover.load(NetworkHelper.IMAGE_BASE_URL + movieDetails?.backdrop_path)
+        val imageLoader = ImageLoader.Builder(requireContext())
+            .build()
+
+        val imageRequest = ImageRequest.Builder(requireContext())
+            .data("${NetworkHelper.IMAGE_BASE_URL}${movieDetails.backdrop_path}")
+            .placeholder(R.drawable.placeholder_movie_cover)
+            .target(movieCover)
+            .build()
+        imageLoader.enqueue(imageRequest)
+
+
         // movie title + release year (extracted year from release data)
         val releaseDate = movieDetails?.release_date.toString()
         val titleText = movieDetails?.title.toString()
@@ -189,7 +201,6 @@ class MovieDetailsFragment : Fragment() {
                 when (castListResponse) {
                     is ResponseHelper.Success -> {
                         castAdapter.submitList(castListResponse.data ?: emptyList())
-                        binding.shimmerRvCastContainer.gone()
                     }
 
                     is ResponseHelper.Error -> {
@@ -197,17 +208,16 @@ class MovieDetailsFragment : Fragment() {
                     }
 
                     is ResponseHelper.Loading -> {
-                        binding.shimmerRvCastContainer.visible()
                     }
                 }
             }
         }
     }
 
-   fun loadData(){
-       movieDetailsViewModel.getMovieDetail(movieId)
-       movieDetailsViewModel.getSimilarMovies(movieId)
-       movieDetailsViewModel.getCast(movieId)
-   }
+    fun loadData() {
+        movieDetailsViewModel.getMovieDetail(movieId)
+        movieDetailsViewModel.getSimilarMovies(movieId)
+        movieDetailsViewModel.getCast(movieId)
+    }
 
 }
