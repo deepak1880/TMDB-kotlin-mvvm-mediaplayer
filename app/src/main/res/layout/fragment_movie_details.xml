@@ -14,13 +14,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/parent_top_movie_details_layout"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
 
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/detail_image_cover"
@@ -28,7 +21,8 @@
                     android:layout_height="250dp"
                     android:scaleType="fitXY"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:src="@drawable/no_image_available_placeholder" />
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/movieDetailCard"
@@ -36,8 +30,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:elevation="0dp"
-                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/detail_image_cover">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
@@ -98,16 +92,13 @@
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </androidx.cardview.widget.CardView>
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/detail_tabLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/parent_top_movie_details_layout"
+                app:layout_constraintTop_toBottomOf="@+id/movieDetailCard"
                 app:tabBackground="@color/colorPrimary"
                 app:tabGravity="fill"
                 app:tabIndicatorColor="@color/white"
@@ -121,26 +112,19 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/detail_tabLayout" />
+
             <com.facebook.shimmer.ShimmerFrameLayout
                 android:id="@+id/shimmer_movieDetail_container"
                 android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_gravity="center"
-                android:layout_marginTop="15dp"
-                android:orientation="vertical"
+                android:layout_height="match_parent"
                 android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:shimmer_duration="800">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <include layout="@layout/shimmer_movie_details_layout" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                app:layout_constraintTop_toTopOf="parent">
+                <include
+                    android:id="@+id/test"
+                    layout="@layout/shimmer_movie_details_layout" />
             </com.facebook.shimmer.ShimmerFrameLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>

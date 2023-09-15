@@ -1,5 +1,6 @@
 package com.example.tmdbapp.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -17,6 +18,8 @@ import kotlinx.coroutines.withContext
 class MovieDetailViewModel(movieId: Int) : ViewModel() {
     private val movieRepository = MovieRepositoryImpl()
 
+    private val TAG = "MovieDetailViewModel"
+
     private val _movieDetail = MutableLiveData<ResponseHelper<MovieDetails>>()
     val movieDetail: LiveData<ResponseHelper<MovieDetails>> get() = _movieDetail
 
@@ -31,6 +34,7 @@ class MovieDetailViewModel(movieId: Int) : ViewModel() {
 
     fun getMovieDetail(movieId: Int) {
         viewModelScope.launch {
+            Log.e(TAG, "getMovieDetail: ")
             _movieDetail.postValue(ResponseHelper.Loading())
             val movieDetailResponse = withContext(Dispatchers.IO) {
                 movieRepository.getMovieDetail(movieId)
@@ -41,6 +45,7 @@ class MovieDetailViewModel(movieId: Int) : ViewModel() {
 
     fun getCast(movieId: Int) {
         viewModelScope.launch {
+            Log.e(TAG, "getCast: ")
             _movieDetail.postValue(ResponseHelper.Loading())
             val castListResponse = withContext(Dispatchers.IO) {
                 movieRepository.getCast(movieId)
@@ -51,6 +56,7 @@ class MovieDetailViewModel(movieId: Int) : ViewModel() {
 
     fun getSimilarMovies(movieId: Int) {
         viewModelScope.launch {
+            Log.e(TAG, "getSimilarMovies: ")
             _movieDetail.postValue(ResponseHelper.Loading())
             val similarMoviesResponse = withContext(Dispatchers.IO) {
                 movieRepository.getSimilarMovies(movieId)
@@ -61,6 +67,7 @@ class MovieDetailViewModel(movieId: Int) : ViewModel() {
 
     fun getMovieVideos(movieId: Int) {
         viewModelScope.launch {
+            Log.e(TAG, "getMovieVideos: ")
             val movieVideoResponse = withContext(Dispatchers.IO) {
                 movieRepository.getMovieVideos(movieId)
             }
@@ -69,6 +76,7 @@ class MovieDetailViewModel(movieId: Int) : ViewModel() {
     }
 
     init {
+        Log.e(TAG, "Init : ")
         getMovieDetail(movieId)
         getSimilarMovies(movieId)
         getMovieVideos(movieId)

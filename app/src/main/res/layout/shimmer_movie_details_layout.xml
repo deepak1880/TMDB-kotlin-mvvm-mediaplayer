@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-   >
+    android:layout_height="wrap_content"
+    android:elevation="10dp">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -15,7 +15,7 @@
             android:layout_height="match_parent">
 
             <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/detail_image_cover"
+                android:id="@+id/detail_image_cover_shimmer"
                 android:layout_width="match_parent"
                 android:layout_height="250dp"
                 android:background="@color/shimmer_background"
@@ -25,14 +25,14 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/movieDetailCard"
+                android:id="@+id/movieDetailCard_shimmer"
                 style="@style/HomeCardStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:elevation="0dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/detail_image_cover">
+                app:layout_constraintTop_toBottomOf="@id/detail_image_cover_shimmer">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -40,50 +40,51 @@
                     android:layout_margin="10dp">
 
                     <TextView
-                        android:id="@+id/detail_tv_title"
+                        android:id="@+id/detail_tv_title_shimmer"
                         style="@style/DetailTitleStyle"
                         android:layout_width="150dp"
-                        android:background="@color/shimmer_background"
                         android:layout_height="wrap_content"
+                        android:background="@color/shimmer_background"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
-                        android:id="@+id/detail_tv_tagline"
+                        android:id="@+id/detail_tv_tagline_shimmer"
                         style="@style/DetailTagLineStyle"
                         android:layout_width="300dp"
-                        android:background="@color/shimmer_background"
-                        android:layout_marginTop="5dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:background="@color/shimmer_background"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/detail_tv_title" />
+                        app:layout_constraintTop_toBottomOf="@id/detail_tv_title_shimmer" />
 
                     <TextView
-                        android:id="@+id/detail_tv_overviewHeader"
+                        android:id="@+id/detail_tv_overviewHeader_shimmer"
                         style="@style/DetailHeaderStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/detail_text_overviewHeader"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/detail_tv_tagline" />
+                        app:layout_constraintTop_toBottomOf="@id/detail_tv_tagline_shimmer" />
 
                     <TextView
-                        android:id="@+id/detail_tv_overviewBody"
+                        android:id="@+id/detail_tv_overviewBody_shimmer"
                         android:layout_width="400dp"
                         android:layout_height="100dp"
                         android:background="@color/shimmer_background"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/detail_tv_overviewHeader" />
+                        app:layout_constraintTop_toBottomOf="@id/detail_tv_overviewHeader_shimmer" />
 
                     <TextView
-                        android:id="@+id/detail_tv_castHeader"
+                        android:id="@+id/detail_tv_castHeader_shimmer"
                         style="@style/DetailHeaderStyle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/detail_text_castHeader"
-                        app:layout_constraintTop_toBottomOf="@id/detail_tv_overviewBody" />
+                        app:layout_constraintTop_toBottomOf="@id/detail_tv_overviewBody_shimmer" />
+
                     <com.facebook.shimmer.ShimmerFrameLayout
-                        android:id="@+id/shimmer_rv_cast_container"
+                        android:id="@+id/shimmer_rv_cast_container_shimmer"
                         android:layout_width="0dp"
                         android:layout_height="200dp"
                         android:layout_gravity="center"
@@ -92,23 +93,23 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/detail_tv_castHeader"
+                        app:layout_constraintTop_toBottomOf="@+id/detail_tv_castHeader_shimmer"
                         app:shimmer_duration="800">
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content">
 
-                            <include layout="@layout/rv_item_detail_cast" />
+                            <include layout="@layout/shimmer_rv_item_detail_cast" />
 
-                            <include layout="@layout/rv_item_detail_cast" />
+                            <include layout="@layout/shimmer_rv_item_detail_cast" />
 
-                            <include layout="@layout/rv_item_detail_cast" />
+                            <include layout="@layout/shimmer_rv_item_detail_cast" />
                         </LinearLayout>
                     </com.facebook.shimmer.ShimmerFrameLayout>
+
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.cardview.widget.CardView>
-
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 
