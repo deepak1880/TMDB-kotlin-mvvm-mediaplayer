@@ -7,5 +7,4 @@ data class HomeModel(
     val title: String,
     var movies: List<Movie>,
     var status: Status
-) {
-}
+)

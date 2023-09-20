@@ -97,7 +97,7 @@ class MovieDetailsFragment : Fragment() {
 
             connectivityReceiver = ConnectivityReceiver { isConnected ->
                 if (!isConnected) {
-                    requireContext().noInternetSnackbar(view, requireContext()) {
+                    noInternetSnackbar(view, requireContext()) {
                         loadData()
                     }
                 }
@@ -188,6 +188,7 @@ class MovieDetailsFragment : Fragment() {
 
         private fun updateViewPagerData(id: Int) {
             viewPagerAdapter = MovieDetailsViewPagerAdapter(childFragmentManager, lifecycle, id)
+           // viewPager.offscreenPageLimit=ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT
             viewPager.adapter = viewPagerAdapter
             TabLayoutMediator(tabLayout, viewPager) { tab, position ->
                 when (position) {

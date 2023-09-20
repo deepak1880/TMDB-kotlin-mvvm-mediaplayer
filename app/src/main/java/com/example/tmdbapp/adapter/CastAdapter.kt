@@ -69,5 +69,12 @@ class CastAdapter(private val itemOnClick: (Cast) -> Unit) :
         notifyDataSetChanged()
     }
 
+    override fun onViewAttachedToWindow(holder: CastAdapter.CastViewHolder) {
+        super.onViewAttachedToWindow(holder)
+    }
+    override fun onViewDetachedFromWindow(holder: CastAdapter.CastViewHolder) {
+        super.onViewDetachedFromWindow(holder)
+    }
+
 
 }

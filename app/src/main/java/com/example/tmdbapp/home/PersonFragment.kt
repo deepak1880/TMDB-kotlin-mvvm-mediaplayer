@@ -18,6 +18,7 @@ import com.example.tmdbapp.R
 import com.example.tmdbapp.adapter.PersonMovieCreditsAdapter
 import com.example.tmdbapp.databinding.FragmentPersonBinding
 import com.example.tmdbapp.extensions.FragmentHelper
+import com.example.tmdbapp.extensions.gone
 import com.example.tmdbapp.extensions.noInternetSnackbar
 import com.example.tmdbapp.extensions.performFragmentTransaction
 import com.example.tmdbapp.helper.CalculationHelper.findAge
@@ -80,7 +81,7 @@ class PersonFragment : Fragment() {
 
         connectivityReceiver = ConnectivityReceiver { isConnected ->
             if (!isConnected) {
-                requireContext().noInternetSnackbar(view, requireContext()) {
+                noInternetSnackbar(view, requireContext()) {
                     loadData()
                 }
             }
@@ -108,10 +109,6 @@ class PersonFragment : Fragment() {
         }
     }
 
-    private fun loadData() {
-        personViewModel.getPersonDetail(personId)
-        personViewModel.getMovieCredits(personId)
-    }
 
     override fun onResume() {
         super.onResume()
@@ -165,9 +162,9 @@ class PersonFragment : Fragment() {
             personViewModel.movieCredits.observe(viewLifecycleOwner) { castListResponse ->
                 when (castListResponse) {
                     is ResponseHelper.Success -> {
-                        Log.e("Cast list: ",castListResponse.data.toString())
+                        Log.e("Cast list: ", castListResponse.data.toString())
                         movieCreditsAdapter.submitList(castListResponse.data ?: emptyList())
-                        binding.shimmerRvContainer.visibility = View.GONE
+                        binding.shimmerRvContainer.gone()
                     }
 
                     is ResponseHelper.Error -> {
@@ -176,12 +173,11 @@ class PersonFragment : Fragment() {
                     is ResponseHelper.Loading -> {
                         binding.shimmerRvContainer.startShimmer()
                     }
-
                 }
             }
         }
     }
-
+    
     private fun navigateToMovieDetails(movieId: Int, targetFragment: Fragment) {
         val bundle = Bundle().apply {
             putInt("movieId", movieId)
@@ -194,6 +190,11 @@ class PersonFragment : Fragment() {
             FragmentHelper.REPLACE,
             true
         )
+    }    private fun loadData() {
+        personViewModel.getPersonDetail(personId)
+        personViewModel.getMovieCredits(personId)
     }
+
+
 
 }

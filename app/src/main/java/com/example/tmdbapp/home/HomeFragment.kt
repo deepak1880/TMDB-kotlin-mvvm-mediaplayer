@@ -27,7 +27,6 @@ import com.example.tmdbapp.viewmodel.HomeViewModel
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
-
 class HomeFragment : Fragment() {
 
     // recycler view
@@ -57,7 +56,7 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         connectivityReceiver = ConnectivityReceiver { isConnected ->
             if (!isConnected) {
-                requireContext().noInternetSnackbar(view, requireContext()) {
+                noInternetSnackbar(view, requireContext()) {
                     loadData()
                 }
             }

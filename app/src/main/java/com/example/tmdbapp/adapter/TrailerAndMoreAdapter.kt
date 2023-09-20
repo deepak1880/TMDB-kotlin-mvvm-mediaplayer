@@ -1,10 +1,12 @@
 package com.example.tmdbapp.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.tmdbapp.R
 import com.example.tmdbapp.databinding.RvItemTrailersVideosBinding
 import com.example.tmdbapp.model.videos.Video
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
@@ -14,10 +16,8 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTube
 class TrailerAndMoreAdapter() : RecyclerView.Adapter<TrailerAndMoreAdapter.TrailerViewHolder>() {
     var videos: List<Video> = emptyList()
 
-    private lateinit var binding : RvItemTrailersVideosBinding
-
-
     inner class TrailerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val binding: RvItemTrailersVideosBinding = RvItemTrailersVideosBinding.bind(itemView)
         private val youtubePlayerView: YouTubePlayerView =
             binding.rvItemTrailersVideoPlayer
         private var youtubePlayer: YouTubePlayer? = null
@@ -36,10 +36,11 @@ class TrailerAndMoreAdapter() : RecyclerView.Adapter<TrailerAndMoreAdapter.Trail
         }
 
         fun bind(video: Video) {
-            youtubePlayer?.cueVideo(video.key, 0f)
+           youtubePlayer?.cueVideo(video.key, 0f)
         }
 
         fun pauseVideo() {
+            Log.d("inside pause vid","working")
             youtubePlayer?.pause()
         }
     }
@@ -49,8 +50,8 @@ class TrailerAndMoreAdapter() : RecyclerView.Adapter<TrailerAndMoreAdapter.Trail
         viewType: Int
     ): TrailerAndMoreAdapter.TrailerViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        binding = RvItemTrailersVideosBinding.inflate(inflater,parent,false)
-        return TrailerViewHolder(binding.root)
+        val itemView = inflater.inflate(R.layout.rv_item_trailers_videos, parent, false)
+        return TrailerViewHolder(itemView)
     }
 
     override fun getItemCount(): Int {
@@ -68,9 +69,12 @@ class TrailerAndMoreAdapter() : RecyclerView.Adapter<TrailerAndMoreAdapter.Trail
         notifyDataSetChanged()
     }
 
+    override fun onViewAttachedToWindow(holder: TrailerViewHolder) {
+        super.onViewAttachedToWindow(holder)
+        Log.d("TAG","attached")
+    }
     override fun onViewDetachedFromWindow(holder: TrailerViewHolder) {
         super.onViewDetachedFromWindow(holder)
-        holder.pauseVideo()
+        Log.d("TAG","detached")
     }
-
 }
