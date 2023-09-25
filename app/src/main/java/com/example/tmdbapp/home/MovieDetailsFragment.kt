@@ -107,8 +107,9 @@ class MovieDetailsFragment : Fragment() {
                 movieDetailsViewModel.movieDetail.observe(viewLifecycleOwner) { movieDetails ->
                     when (movieDetails) {
                         is ResponseHelper.Success -> {
-                            Log.e(TAG, "onViewCreated: Sucess")
+                            Log.e(TAG, "onViewCreated: Success")
                             updateUI(movieDetails.data!!)
+                            binding.detailImageCover.visible()
                             binding.movieDetailCard.visible()
                             binding.detailTabLayout.visible()
                             binding.detailViewPager.visible()
@@ -122,6 +123,7 @@ class MovieDetailsFragment : Fragment() {
 
                         is ResponseHelper.Loading -> {
                             Log.e(TAG, "onViewCreated: Loading")
+                            binding.detailImageCover.gone()
                             binding.movieDetailCard.gone()
                             binding.detailTabLayout.gone()
                             binding.detailViewPager.gone()

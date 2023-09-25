@@ -41,9 +41,6 @@ class PersonMovieCreditsAdapter(private val itemOnClick: (Cast) -> Unit) :
     }
 
     override fun onBindViewHolder(holder: PersonMovieCreditsViewHolder, position: Int) {
-        /*holder.movieImageView.load(
-            "${NetworkHelper.IMAGE_BASE_URL}${movieCredits[position].poster_path}"
-        )*/
 
         val imageLoader = ImageLoader.Builder(context)
             .build()
