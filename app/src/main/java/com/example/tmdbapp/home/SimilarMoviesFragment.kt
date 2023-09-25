@@ -74,7 +74,7 @@ class SimilarMoviesFragment : Fragment() {
 
     private fun updateUiWithData() {
         lifecycleScope.launch {
-            movieDetailsViewModel.similarMovies.observe(viewLifecycleOwner) { similarMovieResponse ->
+            movieDetailsViewModel.similarMovies.collect{ similarMovieResponse ->
                 when (similarMovieResponse) {
                     is ResponseHelper.Success -> {
                         movieAdapter.submitList(similarMovieResponse.data)

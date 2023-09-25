@@ -1,85 +1,29 @@
 package com.example.tmdbapp.viewmodel
 
-import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.tmdbapp.helper.ResponseHelper
 import com.example.tmdbapp.model.Movie
 import com.example.tmdbapp.model.MovieDetails
 import com.example.tmdbapp.model.people.Cast
 import com.example.tmdbapp.model.videos.Video
 import com.example.tmdbapp.repository.MovieRepositoryImpl
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.Flow
 
 class MovieDetailViewModel(movieId: Int) : ViewModel() {
     private val movieRepository = MovieRepositoryImpl()
 
-    private val TAG = "MovieDetailViewModel"
+    val movieDetail: Flow<ResponseHelper<MovieDetails>> = movieRepository.getMovieDetail(movieId)
 
-    private val _movieDetail = MutableLiveData<ResponseHelper<MovieDetails>>()
-    val movieDetail: LiveData<ResponseHelper<MovieDetails>> get() = _movieDetail
+    val castList: Flow<ResponseHelper<List<Cast>>> = movieRepository.getCast(movieId)
 
-    private val _castList = MutableLiveData<ResponseHelper<List<Cast>>>()
-    val castList: LiveData<ResponseHelper<List<Cast>>> get() = _castList
+    val similarMovies: Flow<ResponseHelper<List<Movie>>> = movieRepository.getSimilarMovies(movieId)
 
-    private val _similarMovies = MutableLiveData<ResponseHelper<List<Movie>>>()
-    val similarMovies: LiveData<ResponseHelper<List<Movie>>> get() = _similarMovies
-
-    private val _movieVideos = MutableLiveData<ResponseHelper<List<Video>>>()
-    val movieVideos: LiveData<ResponseHelper<List<Video>>> get() = _movieVideos
-
-    fun getMovieDetail(movieId: Int) {
-        viewModelScope.launch {
-            Log.e(TAG, "getMovieDetail: ")
-            _movieDetail.postValue(ResponseHelper.Loading())
-            val movieDetailResponse = withContext(Dispatchers.IO) {
-                movieRepository.getMovieDetail(movieId)
-            }
-            _movieDetail.postValue(movieDetailResponse)
-        }
-    }
-
-    fun getCast(movieId: Int) {
-        viewModelScope.launch {
-            Log.e(TAG, "getCast: ")
-            _movieDetail.postValue(ResponseHelper.Loading())
-            val castListResponse = withContext(Dispatchers.IO) {
-                movieRepository.getCast(movieId)
-            }
-            _castList.postValue(castListResponse)
-        }
-    }
-
-    fun getSimilarMovies(movieId: Int) {
-        viewModelScope.launch {
-            Log.e(TAG, "getSimilarMovies: ")
-            _movieDetail.postValue(ResponseHelper.Loading())
-            val similarMoviesResponse = withContext(Dispatchers.IO) {
-                movieRepository.getSimilarMovies(movieId)
-            }
-            _similarMovies.postValue(similarMoviesResponse)
-        }
-    }
-
-    fun getMovieVideos(movieId: Int) {
-        viewModelScope.launch {
-            Log.e(TAG, "getMovieVideos: ")
-            val movieVideoResponse = withContext(Dispatchers.IO) {
-                movieRepository.getMovieVideos(movieId)
-            }
-            _movieVideos.postValue(movieVideoResponse)
-        }
-    }
+    val movieVideos: Flow<ResponseHelper<List<Video>>> = movieRepository.getMovieVideos(movieId)
 
     init {
-        Log.e(TAG, "Init : ")
-        getMovieDetail(movieId)
-        getSimilarMovies(movieId)
-        getMovieVideos(movieId)
-        getCast(movieId)
+        movieDetail
+        castList
+        similarMovies
+        movieVideos
     }
 }

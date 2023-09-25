@@ -5,22 +5,22 @@ import com.example.tmdbapp.model.Movie
 import com.example.tmdbapp.model.MovieDetails
 import com.example.tmdbapp.model.people.Cast
 import com.example.tmdbapp.model.videos.Video
-
+import kotlinx.coroutines.flow.Flow
 interface MovieRepository {
 
-    suspend fun getTopRatedMovies() : ResponseHelper<List<Movie>>
+    fun getTopRatedMovies() : Flow<ResponseHelper<List<Movie>>>
 
-    suspend fun getNowPlayingMovies() : ResponseHelper<List<Movie>>
+    fun getNowPlayingMovies() : Flow<ResponseHelper<List<Movie>>>
 
-    suspend fun getPopularMovies() : ResponseHelper<List<Movie>>
+    fun getPopularMovies() : Flow<ResponseHelper<List<Movie>>>
 
-    suspend fun getUpcomingMovies() : ResponseHelper<List<Movie>>
+    fun getUpcomingMovies() : Flow<ResponseHelper<List<Movie>>>
 
-    suspend fun getMovieDetail(id: Int): ResponseHelper<MovieDetails>
+    fun getMovieDetail(id: Int): Flow<ResponseHelper<MovieDetails>>
 
-    suspend fun getCast(id : Int) : ResponseHelper<List<Cast>>
+    fun getCast(id : Int) : Flow<ResponseHelper<List<Cast>>>
 
-    suspend fun getSimilarMovies(id : Int) : ResponseHelper<List<Movie>>
+    fun getSimilarMovies(id : Int) : Flow<ResponseHelper<List<Movie>>>
 
-    suspend fun getMovieVideos(id : Int) : ResponseHelper<List<Video>>
+    fun getMovieVideos(id : Int) : Flow<ResponseHelper<List<Video>>>
 }

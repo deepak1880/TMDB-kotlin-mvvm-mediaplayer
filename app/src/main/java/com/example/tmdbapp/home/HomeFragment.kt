@@ -27,6 +27,7 @@ import com.example.tmdbapp.viewmodel.HomeViewModel
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
+
 class HomeFragment : Fragment() {
 
     // recycler view
@@ -91,9 +92,7 @@ class HomeFragment : Fragment() {
 
     private fun updateUIWithData() {
         lifecycleScope.launch {
-            homeViewModel.popularMovies.observe(viewLifecycleOwner) { popularMovieResponse ->
-
-//                homeAdapter.submitData(HomeModel("Popular", popularMovieList))
+            homeViewModel.popularMovies.collect { popularMovieResponse ->
                 when (popularMovieResponse) {
                     is ResponseHelper.Success -> {
                         homeAdapter.updateDataItem(
@@ -116,8 +115,7 @@ class HomeFragment : Fragment() {
 
             }
 
-            homeViewModel.topRatedMovies.observe(viewLifecycleOwner) { topRatedMovieResponse ->
-//                homeAdapter.submitData(HomeModel("Top Rated", topRatedMovieList))
+            homeViewModel.topRatedMovies.collect { topRatedMovieResponse ->
                 when (topRatedMovieResponse) {
                     is ResponseHelper.Success -> {
                         homeAdapter.updateDataItem(
@@ -135,8 +133,7 @@ class HomeFragment : Fragment() {
                 }
             }
 
-            homeViewModel.upcomingMovies.observe(viewLifecycleOwner) { upcomingMovieResponse ->
-//                homeAdapter.submitData(HomeModel("Upcoming", upcomingMovieList))
+            homeViewModel.upcomingMovies.collect { upcomingMovieResponse ->
                 when (upcomingMovieResponse) {
                     is ResponseHelper.Success -> {
                         homeAdapter.updateDataItem(
@@ -157,8 +154,7 @@ class HomeFragment : Fragment() {
 
             }
 
-            homeViewModel.nowPlayingMovies.observe(viewLifecycleOwner) { nowPlayingMovieResponse ->
-//                homeAdapter.submitData(HomeModel("Now Playing", nowPlayingMovieList))
+            homeViewModel.nowPlayingMovies.collect { nowPlayingMovieResponse ->
                 when (nowPlayingMovieResponse) {
                     is ResponseHelper.Success -> {
                         homeAdapter.updateDataItem(
@@ -196,10 +192,10 @@ class HomeFragment : Fragment() {
     }
 
     private fun loadData() {
-        homeViewModel.getUpcomingMovies()
-        homeViewModel.getTopRatedMovies()
-        homeViewModel.getNowPlayingMovies()
-        homeViewModel.getPopularMovies()
+        homeViewModel.popularMovies
+        homeViewModel.topRatedMovies
+        homeViewModel.nowPlayingMovies
+        homeViewModel.upcomingMovies
     }
 
     private fun checkInternet() {

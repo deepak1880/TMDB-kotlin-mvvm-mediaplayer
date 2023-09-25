@@ -84,7 +84,7 @@ class TrailersAndMoreFragment : Fragment() {
 
     private fun updateUiWithData() {
         lifecycleScope.launch {
-            movieDetailsViewModel.movieVideos.observe(viewLifecycleOwner) { movieVideoResponse ->
+            movieDetailsViewModel.movieVideos.collect { movieVideoResponse ->
                 when (movieVideoResponse) {
                     is ResponseHelper.Success -> {
                         Log.d("video data from api",movieVideoResponse.data.toString())
