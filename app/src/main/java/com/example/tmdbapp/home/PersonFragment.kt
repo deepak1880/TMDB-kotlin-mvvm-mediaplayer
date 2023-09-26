@@ -10,6 +10,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import coil.ImageLoader
@@ -29,6 +30,7 @@ import com.example.tmdbapp.model.people.Person
 import com.example.tmdbapp.receivers.ConnectivityReceiver
 import com.example.tmdbapp.viewmodel.PersonViewModel
 import com.example.tmdbapp.viewmodel.PersonViewModelFactory
+import kotlinx.coroutines.launch
 
 
 class PersonFragment : Fragment() {
@@ -87,23 +89,23 @@ class PersonFragment : Fragment() {
             }
         }
 
-
         personViewModel =
             ViewModelProvider(this, PersonViewModelFactory(personId))[PersonViewModel::class.java]
 
-        personViewModel.personDetail.observe(viewLifecycleOwner) { personResponse ->
-            when (personResponse) {
-                is ResponseHelper.Success -> {
-                    updateUiWithData(personResponse.data)
-                    binding.shimmerViewContainer.visibility = View.GONE
-                }
+        lifecycleScope.launch {
+            personViewModel.personDetail.collect { personResponse ->
+                when (personResponse) {
+                    is ResponseHelper.Success -> {
+                        updateUiWithData(personResponse.data)
+                        binding.shimmerViewContainer.visibility = View.GONE
+                    }
 
-                is ResponseHelper.Error -> {
+                    is ResponseHelper.Error -> {
+                    }
 
-                }
-
-                is ResponseHelper.Loading -> {
-                    binding.shimmerViewContainer.visibility = View.VISIBLE
+                    is ResponseHelper.Loading -> {
+                        binding.shimmerViewContainer.visibility = View.VISIBLE
+                    }
                 }
             }
         }
@@ -159,25 +161,27 @@ class PersonFragment : Fragment() {
             movieCreditsRecyclerView.adapter = movieCreditsAdapter
             movieCreditsRecyclerView.addItemDecoration(itemMarginDecoration)
 
-            personViewModel.movieCredits.observe(viewLifecycleOwner) { castListResponse ->
-                when (castListResponse) {
-                    is ResponseHelper.Success -> {
-                        Log.e("Cast list: ", castListResponse.data.toString())
-                        movieCreditsAdapter.submitList(castListResponse.data ?: emptyList())
-                        binding.shimmerRvContainer.gone()
-                    }
+            lifecycleScope.launch {
+                personViewModel.movieCredits.collect { castListResponse ->
+                    when (castListResponse) {
+                        is ResponseHelper.Success -> {
+                            Log.e("Cast list: ", castListResponse.data.toString())
+                            movieCreditsAdapter.submitList(castListResponse.data ?: emptyList())
+                            binding.shimmerRvContainer.gone()
+                        }
 
-                    is ResponseHelper.Error -> {
-                    }
+                        is ResponseHelper.Error -> {
+                        }
 
-                    is ResponseHelper.Loading -> {
-                        binding.shimmerRvContainer.startShimmer()
+                        is ResponseHelper.Loading -> {
+                            binding.shimmerRvContainer.startShimmer()
+                        }
                     }
                 }
             }
         }
     }
-    
+
     private fun navigateToMovieDetails(movieId: Int, targetFragment: Fragment) {
         val bundle = Bundle().apply {
             putInt("movieId", movieId)
@@ -190,11 +194,12 @@ class PersonFragment : Fragment() {
             FragmentHelper.REPLACE,
             true
         )
-    }    private fun loadData() {
-        personViewModel.getPersonDetail(personId)
-        personViewModel.getMovieCredits(personId)
     }
 
+    private fun loadData() {
+        personViewModel.personDetail
+        personViewModel.movieCredits
+    }
 
 
 }

@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.flowOn
 class MovieRepositoryImpl : BaseRepository(), MovieRepository {
     private val movieService: MovieService = NetworkHelper.movieService
 
-    fun getXyz(): Flow<ResponseHelper<Result>> {
+    fun getData(): Flow<ResponseHelper<Result>> {
         return executeAPI {
             movieService.getPopularMovies()
         }
@@ -68,8 +68,8 @@ class MovieRepositoryImpl : BaseRepository(), MovieRepository {
         emit(ResponseHelper.Error(it.message.toString()))
     }
 
-    override fun getMovieDetail(id: Int): Flow<ResponseHelper<MovieDetails>> = flow {
-        val response = movieService.getMovieDetail(id)
+    override fun getMovieDetail(movieId: Int): Flow<ResponseHelper<MovieDetails>> = flow {
+        val response = movieService.getMovieDetail(movieId)
         if (response.isSuccessful) {
             emit(ResponseHelper.Success(response.body()))
         } else {
@@ -79,9 +79,9 @@ class MovieRepositoryImpl : BaseRepository(), MovieRepository {
         emit(ResponseHelper.Error(it.message.toString()))
     }
 
-    override fun getCast(id: Int): Flow<ResponseHelper<List<Cast>>> =
-        flow<ResponseHelper<List<Cast>>> {
-            val response = movieService.getMovieCredits(id)
+    override fun getCast(movieId: Int): Flow<ResponseHelper<List<Cast>>> =
+        flow {
+            val response = movieService.getMovieCredits(movieId)
             if (response.isSuccessful) {
                 val responseBody = response.body()
                 emit(ResponseHelper.Success(responseBody?.cast))
@@ -93,9 +93,9 @@ class MovieRepositoryImpl : BaseRepository(), MovieRepository {
                 emit(ResponseHelper.Error(it.message.toString()))
             }
 
-    override fun getSimilarMovies(id: Int): Flow<ResponseHelper<List<Movie>>> =
-        flow<ResponseHelper<List<Movie>>> {
-            val response = movieService.getSimilarMovies(id)
+    override fun getSimilarMovies(movieId: Int): Flow<ResponseHelper<List<Movie>>> =
+        flow {
+            val response = movieService.getSimilarMovies(movieId)
             if (response.isSuccessful) {
                 val responseBody = response.body()
                 emit(ResponseHelper.Success(responseBody?.movies))
@@ -107,8 +107,8 @@ class MovieRepositoryImpl : BaseRepository(), MovieRepository {
                 emit(ResponseHelper.Error(it.message.toString()))
             }
 
-    override fun getMovieVideos(id: Int): Flow<ResponseHelper<List<Video>>> = flow {
-        val response = NetworkHelper.movieService.getMovieVideos(id)
+    override fun getMovieVideos(movieId: Int): Flow<ResponseHelper<List<Video>>> = flow {
+        val response = NetworkHelper.movieService.getMovieVideos(movieId)
         if (response.isSuccessful) {
             val responseBody = response.body()
             emit(ResponseHelper.Success(responseBody?.videoList))

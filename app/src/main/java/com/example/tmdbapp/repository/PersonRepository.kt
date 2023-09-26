@@ -3,10 +3,11 @@ package com.example.tmdbapp.repository
 import com.example.tmdbapp.helper.ResponseHelper
 import com.example.tmdbapp.model.people.Cast
 import com.example.tmdbapp.model.people.Person
+import kotlinx.coroutines.flow.Flow
 
 interface PersonRepository {
 
-    suspend fun getPersonDetail(id: Int): ResponseHelper<Person>
+    fun getPersonDetail(personId: Int): Flow<ResponseHelper<Person>>
 
-    suspend fun getPersonMovieCredits(personId: Int): ResponseHelper<List<Cast>>
+    fun getPersonMovieCredits(personId: Int): Flow<ResponseHelper<List<Cast>>>
 }

@@ -16,11 +16,11 @@ interface MovieRepository {
 
     fun getUpcomingMovies() : Flow<ResponseHelper<List<Movie>>>
 
-    fun getMovieDetail(id: Int): Flow<ResponseHelper<MovieDetails>>
+    fun getMovieDetail(movieId: Int): Flow<ResponseHelper<MovieDetails>>
 
-    fun getCast(id : Int) : Flow<ResponseHelper<List<Cast>>>
+    fun getCast(movieId : Int) : Flow<ResponseHelper<List<Cast>>>
 
-    fun getSimilarMovies(id : Int) : Flow<ResponseHelper<List<Movie>>>
+    fun getSimilarMovies(movieId : Int) : Flow<ResponseHelper<List<Movie>>>
 
-    fun getMovieVideos(id : Int) : Flow<ResponseHelper<List<Video>>>
+    fun getMovieVideos(movieId : Int) : Flow<ResponseHelper<List<Video>>>
 }
