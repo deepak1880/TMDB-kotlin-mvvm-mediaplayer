@@ -68,13 +68,4 @@ class CastAdapter(private val itemOnClick: (Cast) -> Unit) :
         cast = castList.toMutableList()
         notifyDataSetChanged()
     }
-
-    override fun onViewAttachedToWindow(holder: CastAdapter.CastViewHolder) {
-        super.onViewAttachedToWindow(holder)
-    }
-    override fun onViewDetachedFromWindow(holder: CastAdapter.CastViewHolder) {
-        super.onViewDetachedFromWindow(holder)
-    }
-
-
 }

@@ -19,11 +19,4 @@ class MovieDetailViewModel(movieId: Int) : ViewModel() {
     val similarMovies: Flow<ResponseHelper<List<Movie>>> = movieRepository.getSimilarMovies(movieId)
 
     val movieVideos: Flow<ResponseHelper<List<Video>>> = movieRepository.getMovieVideos(movieId)
-
-    init {
-        movieDetail
-        castList
-        similarMovies
-        movieVideos
-    }
 }

@@ -1,6 +1,7 @@
 package com.example.tmdbapp.home
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -77,6 +78,7 @@ class SimilarMoviesFragment : Fragment() {
             movieDetailsViewModel.similarMovies.collect{ similarMovieResponse ->
                 when (similarMovieResponse) {
                     is ResponseHelper.Success -> {
+                        Log.e("SimilarMoviesFragment",similarMovieResponse.data.toString())
                         movieAdapter.submitList(similarMovieResponse.data)
                     }
 

@@ -2,7 +2,6 @@ package com.example.tmdbapp.home
 
 import android.content.IntentFilter
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -107,7 +106,6 @@ class MovieDetailsFragment : Fragment() {
             movieDetailsViewModel.movieDetail.collect { movieDetails ->
                 when (movieDetails) {
                     is ResponseHelper.Success -> {
-                        Log.e(TAG, "onViewCreated: Success")
                         updateUI(movieDetails.data!!)
                         binding.detailImageCover.visible()
                         binding.movieDetailCard.visible()
@@ -122,7 +120,6 @@ class MovieDetailsFragment : Fragment() {
                     }
 
                     is ResponseHelper.Loading -> {
-                        Log.e(TAG, "onViewCreated: Loading")
                         binding.detailImageCover.gone()
                         binding.movieDetailCard.gone()
                         binding.detailTabLayout.gone()
@@ -212,7 +209,7 @@ class MovieDetailsFragment : Fragment() {
     }
 
     private fun updateCastList() {
-        lifecycleScope.launch {
+        lifecycleScope.launch() {
             movieDetailsViewModel.castList.collect { castListResponse ->
                 when (castListResponse) {
                     is ResponseHelper.Success -> {

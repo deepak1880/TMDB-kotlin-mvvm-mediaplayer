@@ -58,7 +58,7 @@ class MovieRepositoryImpl : BaseRepository(), MovieRepository {
     }
 
     override fun getUpcomingMovies(): Flow<ResponseHelper<List<Movie>>> = flow {
-        val result = movieService.getTopRatedMovies()
+        val result = movieService.getUpcomingMovies()
         if (result.isSuccessful) {
             emit(ResponseHelper.Success(result.body()?.movies ?: emptyList()))
         } else {
@@ -84,9 +84,9 @@ class MovieRepositoryImpl : BaseRepository(), MovieRepository {
             val response = movieService.getMovieCredits(id)
             if (response.isSuccessful) {
                 val responseBody = response.body()
-                ResponseHelper.Success(responseBody?.cast)
+                emit(ResponseHelper.Success(responseBody?.cast))
             } else {
-                ResponseHelper.Error("Failed to fetch cast of the movie.")
+                emit(ResponseHelper.Error("Failed to fetch cast of the movie."))
             }
         }.flowOn(Dispatchers.IO)
             .catch {
@@ -98,9 +98,9 @@ class MovieRepositoryImpl : BaseRepository(), MovieRepository {
             val response = movieService.getSimilarMovies(id)
             if (response.isSuccessful) {
                 val responseBody = response.body()
-                ResponseHelper.Success(responseBody?.movies)
+                emit(ResponseHelper.Success(responseBody?.movies))
             } else {
-                ResponseHelper.Error("Failed to fetch popular movies")
+                emit(ResponseHelper.Error("Failed to fetch popular movies"))
             }
         }.flowOn(Dispatchers.IO)
             .catch {

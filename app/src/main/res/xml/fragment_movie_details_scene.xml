@@ -13,12 +13,6 @@
                 android:scaleY="0"
                 motion:framePosition="100"
                 motion:motionTarget="@id/detail_image_cover" />
-
-            <KeyAttribute
-                android:scaleX="10"
-                android:scaleY="10"
-                motion:framePosition="100"
-                motion:motionTarget="@id/detail_tv_title" />
         </KeyFrameSet>
         <OnSwipe
             motion:dragDirection="dragUp"
